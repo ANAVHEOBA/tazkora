@@ -1,19 +1,20 @@
 {
   "name": "tazkora",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
+  "main": "dist/server.js",    "scripts": {
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
+    "postinstall": "npm run build", 
     "watch-ts": "tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "engines": {  
+    "node": ">=18.0.0"
+  },
   "dependencies": {
+    
+    "typescript": "^5.7.3",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.8",
     "@types/nodemailer": "^6.4.17",
@@ -33,7 +34,6 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.12.0",
     "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.7.3"
+    "ts-node-dev": "^2.0.0"
   }
 }

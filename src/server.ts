@@ -1,26 +1,20 @@
 import app from './app';
-import mongoose from 'mongoose';
-import * as dotenv from 'dotenv';
+import { connectDB } from './db';
+import { env } from './config/env';
 
-dotenv.config();
+const PORT = env.PORT;
 
-const MONGODB_URI = process.env.MONGODB_URI;
-const PORT = process.env.PORT || 3000;
-
-if (!MONGODB_URI) {
-    console.error('MONGODB_URI is not defined in environment variables');
-    process.exit(1);
-}
-
-mongoose
-    .connect(MONGODB_URI)
-    .then(() => {
-        console.log('Connected to MongoDB Atlas successfully');
+const startServer = async () => {
+    try {
+        await connectDB();
+        
         app.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
         });
-    })
-    .catch((error) => {
-        console.error('MongoDB connection error:', error);
+    } catch (error) {
+        console.error('Server startup error:', error);
         process.exit(1);
-    });
+    }
+};
+
+startServer();

@@ -8,13 +8,30 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.use('/api/users', userRouter);
+// Root route
+app.get('/', (_req: Request, res: Response) => {
+    res.status(200).json({ 
+        success: true,
+        message: 'Welcome to Tazkora API',
+        version: '1.0.0',
+        documentation: '/api-docs', // If you add Swagger/OpenAPI docs later
+        healthCheck: '/health'
+    });
+});
 
 // Health check endpoint
 app.get('/health', (_req: Request, res: Response) => {
-    res.status(200).json({ status: 'ok' });
+    res.status(200).json({ 
+        success: true,
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || 'development'
+    });
 });
+
+// API Routes
+app.use('/api/users', userRouter);
 
 // Error handling
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
@@ -29,7 +46,14 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 app.use((_req: Request, res: Response) => {
     res.status(404).json({ 
         success: false,
-        message: 'Route not found' 
+        message: 'Route not found',
+        availableRoutes: {
+            root: '/',
+            health: '/health',
+            api: {
+                users: '/api/users/*'
+            }
+        }
     });
 });
 

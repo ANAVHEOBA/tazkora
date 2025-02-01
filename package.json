@@ -7,7 +7,8 @@
     "build": "tsc",
     "postinstall": "npm run build", 
     "watch-ts": "tsc -w",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "create-admin": "ts-node src/scripts/createAdmin.ts"
   },
   "engines": {  
     "node": ">=18.0.0"

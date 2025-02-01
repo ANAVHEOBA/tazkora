@@ -1,6 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import userRouter from './modules/user/user.router';
+import adminRouter from './modules/admin/admin.router';
+import partnerRouter from './modules/partner/partner.router';
 
 const app = express();
 
@@ -32,6 +34,10 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // API Routes
 app.use('/api/users', userRouter);
+
+app.use('/api/admin', adminRouter);
+
+app.use('/api/admin/partners', partnerRouter);
 
 // Error handling
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

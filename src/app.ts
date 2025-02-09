@@ -3,6 +3,7 @@ import cors from 'cors';
 import userRouter from './modules/user/user.router';
 import adminRouter from './modules/admin/admin.router';
 import partnerRouter from './modules/partner/partner.router';
+import notificationRouter from './modules/notifications/notification.router';
 
 const app = express();
 
@@ -38,6 +39,8 @@ app.use('/api/users', userRouter);
 app.use('/api/admin', adminRouter);
 
 app.use('/api/admin/partners', partnerRouter);
+
+app.use('/api/notifications', notificationRouter);
 
 // Error handling
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

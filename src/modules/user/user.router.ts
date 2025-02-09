@@ -17,4 +17,16 @@ router.post(
     userController.verifyEmail.bind(userController)
 );
 
+router.post(
+    '/posts',
+    authMiddleware,
+    userController.createPost.bind(userController)
+);
+
+router.get(
+    '/posts',
+    authMiddleware,
+    userController.getUserPosts.bind(userController)
+);
+
 export default router;

@@ -1,13 +1,16 @@
 import { Request, Response } from 'express';
 import { PartnerCrud } from './partner.crud';
 import { CreatePartnerSchema } from './partner.schema';
+import { NotificationCrud } from '../notifications/notification.crud';
 import mongoose from 'mongoose';
 
 export class PartnerController {
     private partnerCrud: PartnerCrud;
+    private notificationCrud: NotificationCrud;
 
     constructor() {
         this.partnerCrud = new PartnerCrud();
+        this.notificationCrud = new NotificationCrud();
     }
 
     async create(req: Request, res: Response): Promise<Response> {
@@ -26,6 +29,15 @@ export class PartnerController {
 
             // Create partner
             const partner = await this.partnerCrud.create(validatedInput);
+
+            // Create notification for all users
+            await this.notificationCrud.createForAllUsers({
+                type: 'NEW_PARTNER',
+                title: 'New Partner Added',
+                message: `${partner.name} has joined as a new partner! Check out their tasks.`,
+                partnerId: partner._id as mongoose.Types.ObjectId,
+                isRead: false
+            });
 
             return res.status(201).json({
                 success: true,

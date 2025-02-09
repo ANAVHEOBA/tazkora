@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
-export interface IPartner {
+export interface IPartner extends mongoose.Document {
+    _id: mongoose.Types.ObjectId;
     name: string;
     logo: string;
     description: string;

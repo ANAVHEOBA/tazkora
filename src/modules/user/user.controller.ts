@@ -14,27 +14,30 @@ export class UserController {
 
     async sendVerificationCode(req: Request, res: Response): Promise<void> {
         try {
-            if (!req.user?.id) {
-                res.status(401).json({ message: 'Unauthorized' });
+            const { email, name } = req.body;
+
+            if (!email) {
+                res.status(400).json({ message: 'Email is required' });
                 return;
             }
 
-            const userId = req.user.id;
-            const user = await this.userCrud.findById(userId);
-    
+            // Find or create user
+            let user = await this.userCrud.findByEmail(email);
             if (!user) {
-                res.status(404).json({ message: 'User not found' });
-                return;
+                user = await this.userCrud.createUser({ email, name });
             }
-    
-            const code = await this.userCrud.generateVerificationCode(userId);
+
+            const code = await this.userCrud.generateVerificationCode(email);
             await sendVerificationEmail(
-                user.email, 
+                email, 
                 code, 
-                user.name || 'User'  
+                name || 'User'
             );
-    
-            res.status(200).json({ message: 'Verification code sent successfully' });
+
+            res.status(200).json({ 
+                message: 'Verification code sent successfully',
+                email
+            });
         } catch (error) {
             console.error('Error in sendVerificationCode:', error);
             res.status(500).json({ message: 'Failed to send verification code' });
@@ -43,18 +46,20 @@ export class UserController {
 
     async verifyEmail(req: Request, res: Response): Promise<void> {
         try {
-            if (!req.user?.id) {
-                res.status(401).json({ message: 'Unauthorized' });
+            const { email, code } = req.body;
+
+            if (!email || !code) {
+                res.status(400).json({ message: 'Email and code are required' });
                 return;
             }
 
-            const userId = req.user.id;
-            const { code } = req.body;
-
-            const isVerified = await this.userCrud.verifyEmail(userId, code);
+            const isVerified = await this.userCrud.verifyEmail(email, code);
 
             if (isVerified) {
-                res.status(200).json({ message: 'Email verified successfully' });
+                res.status(200).json({ 
+                    message: 'Email verified successfully',
+                    email
+                });
             } else {
                 res.status(400).json({ message: 'Invalid or expired verification code' });
             }

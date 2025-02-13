@@ -7,13 +7,11 @@ const userController = new UserController();
 
 router.post(
     '/send-verification',
-    authMiddleware,
     userController.sendVerificationCode.bind(userController)
 );
 
 router.post(
     '/verify-email',
-    authMiddleware,
     userController.verifyEmail.bind(userController)
 );
 

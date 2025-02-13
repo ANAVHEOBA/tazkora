@@ -1,4 +1,5 @@
 import { User, IUser, Post, IPost } from './user.model';
+import bcrypt from 'bcrypt';
 
 export class UserCrud {
     async findById(userId: string): Promise<IUser | null> {
@@ -10,6 +11,12 @@ export class UserCrud {
     }
 
     async createUser(userData: Partial<IUser>): Promise<IUser> {
+        // Hash password
+        if (userData.password) {
+            const salt = await bcrypt.genSalt(10);
+            userData.password = await bcrypt.hash(userData.password, salt);
+        }
+
         const user = new User({
             ...userData,
             isEmailVerified: false
@@ -83,5 +90,23 @@ export class UserCrud {
     async deletePost(postId: string): Promise<boolean> {
         const result = await Post.findByIdAndDelete(postId);
         return !!result;
+    }
+
+    async login(loginData: { username: string; password: string }): Promise<IUser | null> {
+        // Find user by username or email
+        const user = await User.findOne({
+            $or: [
+                { email: loginData.username },
+                { username: loginData.username }
+            ]
+        });
+
+        if (!user) return null;
+
+        // Verify password
+        const isValidPassword = await bcrypt.compare(loginData.password, user.password);
+        if (!isValidPassword) return null;
+
+        return user;
     }
 }

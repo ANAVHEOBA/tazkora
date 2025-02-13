@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { UserCrud } from './user.crud';
 import { NotificationCrud } from '../notifications/notification.crud';
 import { sendVerificationEmail } from '../../services/email.service';
+import { generateToken } from '../../middleware/auth.middleware';
 
 export class UserController {
     private userCrud: UserCrud;
@@ -14,7 +15,7 @@ export class UserController {
 
     async sendVerificationCode(req: Request, res: Response): Promise<void> {
         try {
-            const { email, name } = req.body;
+            const { email, firstName } = req.body;
 
             if (!email) {
                 res.status(400).json({ message: 'Email is required' });
@@ -24,14 +25,18 @@ export class UserController {
             // Find or create user
             let user = await this.userCrud.findByEmail(email);
             if (!user) {
-                user = await this.userCrud.createUser({ email, name });
+                // Only create a temporary user with email
+                user = await this.userCrud.createUser({ 
+                    email,
+                    isEmailVerified: false
+                });
             }
 
             const code = await this.userCrud.generateVerificationCode(email);
             await sendVerificationEmail(
                 email, 
                 code, 
-                name || 'User'
+                firstName || 'User'
             );
 
             res.status(200).json({ 
@@ -111,6 +116,110 @@ export class UserController {
         } catch (error) {
             console.error('Error in getUserPosts:', error);
             res.status(500).json({ message: 'Failed to fetch posts' });
+        }
+    }
+
+    async register(req: Request, res: Response): Promise<void> {
+        try {
+            const {
+                firstName,
+                lastName,
+                middleName,
+                email,
+                username,
+                password,
+                confirmPassword,
+                dateOfBirth,
+                gender
+            } = req.body;
+
+            // Validate required fields
+            if (!firstName || !lastName || !email || !username || !password || !dateOfBirth || !gender) {
+                res.status(400).json({ message: 'Missing required fields' });
+                return;
+            }
+
+            // Validate password match
+            if (password !== confirmPassword) {
+                res.status(400).json({ message: 'Passwords do not match' });
+                return;
+            }
+
+            // Check if user already exists
+            const existingUser = await this.userCrud.findByEmail(email);
+            if (existingUser) {
+                res.status(400).json({ message: 'User already exists' });
+                return;
+            }
+
+            // Create user and store the result
+            await this.userCrud.createUser({
+                firstName,
+                lastName,
+                middleName,
+                email,
+                username,
+                password,
+                dateOfBirth: new Date(dateOfBirth),
+                gender
+            });
+
+            // Generate verification code and send email
+            const code = await this.userCrud.generateVerificationCode(email);
+            await sendVerificationEmail(email, code, firstName);
+
+            res.status(201).json({
+                message: 'Registration successful. Please verify your email.',
+                email
+            });
+        } catch (error) {
+            console.error('Error in register:', error);
+            res.status(500).json({ message: 'Registration failed' });
+        }
+    }
+
+    async login(req: Request, res: Response): Promise<void> {
+        try {
+            const { username, password } = req.body;
+
+            if (!username || !password) {
+                res.status(400).json({ message: 'Username and password are required' });
+                return;
+            }
+
+            const user = await this.userCrud.login({ username, password });
+
+            if (!user) {
+                res.status(401).json({ message: 'Invalid credentials' });
+                return;
+            }
+
+            if (!user.isEmailVerified) {
+                res.status(403).json({ message: 'Please verify your email first' });
+                return;
+            }
+
+            // Generate JWT token - Convert ObjectId to string
+            const token = generateToken({
+                userId: user._id.toString(), // Convert ObjectId to string
+                email: user.email,
+                name: `${user.firstName} ${user.lastName}`,
+                role: 'user'
+            });
+
+            res.status(200).json({
+                message: 'Login successful',
+                token,
+                user: {
+                    id: user._id.toString(), // Convert ObjectId to string
+                    email: user.email,
+                    name: `${user.firstName} ${user.lastName}`,
+                    username: user.username
+                }
+            });
+        } catch (error) {
+            console.error('Error in login:', error);
+            res.status(500).json({ message: 'Login failed' });
         }
     }
 }

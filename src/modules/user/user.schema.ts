@@ -1,14 +1,40 @@
 import { Schema } from 'mongoose';
 
 export const UserSchema = new Schema({
-    name: {          
+    firstName: {
         type: String,
         required: true,
+    },
+    lastName: {
+        type: String,
+        required: true,
+    },
+    middleName: {
+        type: String,
+        required: false,
     },
     email: {
         type: String,
         required: true,
         unique: true,
+    },
+    username: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    dateOfBirth: {
+        type: Date,
+        required: true,
+    },
+    gender: {
+        type: String,
+        enum: ['male', 'female', 'other'],
+        required: true,
     },
     isEmailVerified: {
         type: Boolean,

@@ -2,9 +2,16 @@ import { model } from 'mongoose';
 import { UserSchema, PostSchema } from './user.schema';
 import mongoose from 'mongoose';
 
-export interface IUser {
-    name: string;  
+export interface IUser extends mongoose.Document {
+    _id: mongoose.Types.ObjectId;
+    firstName: string;
+    lastName: string;
+    middleName?: string;
     email: string;
+    username: string;
+    password: string;
+    dateOfBirth: Date;
+    gender: 'male' | 'female' | 'other';
     isEmailVerified: boolean;
     verificationCode?: {
         code: string;

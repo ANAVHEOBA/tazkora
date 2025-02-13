@@ -5,22 +5,37 @@ export class UserCrud {
         return await User.findById(userId);
     }
 
-    async generateVerificationCode(userId: string): Promise<string> {
+    async findByEmail(email: string): Promise<IUser | null> {
+        return await User.findOne({ email });
+    }
+
+    async createUser(userData: Partial<IUser>): Promise<IUser> {
+        const user = new User({
+            ...userData,
+            isEmailVerified: false
+        });
+        return await user.save();
+    }
+
+    async generateVerificationCode(email: string): Promise<string> {
         const code = Math.floor(100000 + Math.random() * 900000).toString();
         const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-        await User.findByIdAndUpdate(userId, {
-            verificationCode: {
-                code,
-                expiresAt,
-            },
-        });
+        await User.findOneAndUpdate(
+            { email },
+            {
+                verificationCode: {
+                    code,
+                    expiresAt,
+                },
+            }
+        );
 
         return code;
     }
 
-    async verifyEmail(userId: string, code: string): Promise<boolean> {
-        const user = await User.findById(userId);
+    async verifyEmail(email: string, code: string): Promise<boolean> {
+        const user = await User.findOne({ email });
         
         if (!user || !user.verificationCode) {
             return false;
@@ -30,10 +45,13 @@ export class UserCrud {
             user.verificationCode.code === code &&
             user.verificationCode.expiresAt > new Date()
         ) {
-            await User.findByIdAndUpdate(userId, {
-                isEmailVerified: true,
-                $unset: { verificationCode: 1 },
-            });
+            await User.findOneAndUpdate(
+                { email },
+                {
+                    isEmailVerified: true,
+                    $unset: { verificationCode: 1 },
+                }
+            );
             return true;
         }
 

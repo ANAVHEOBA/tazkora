@@ -1,24 +1,23 @@
 {
   "name": "tazkora",
   "version": "1.0.0",
-  "main": "dist/server.js",    "scripts": {
+  "main": "dist/server.js",
+  "scripts": {
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "postinstall": "npm run build", 
+    "postinstall": "npm run build",
     "watch-ts": "tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1",
     "create-admin": "ts-node src/scripts/createAdmin.ts"
   },
-  "engines": {  
+  "engines": {
     "node": ">=18.0.0"
   },
   "dependencies": {
-    
-    "typescript": "^5.7.3",
-    "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.8",
     "@types/nodemailer": "^6.4.17",
+    "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "config": "^3.3.12",
     "cors": "^2.8.5",
@@ -27,9 +26,12 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
     "nodemailer": "^6.10.0",
+    "typescript": "^5.7.3",
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/bcryptjs": "^2.4.6",
     "@types/config": "^3.3.5",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",

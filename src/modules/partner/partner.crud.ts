@@ -27,4 +27,9 @@ export class PartnerCrud {
     async delete(id: string): Promise<IPartner | null> {
         return Partner.findByIdAndDelete(id);
     }
+
+
+    async getAllPartners(): Promise<IPartner[]> {
+        return Partner.find().sort({ createdAt: -1 });
+    }
 }

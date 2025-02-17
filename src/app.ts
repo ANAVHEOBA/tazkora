@@ -3,7 +3,7 @@ import cors from 'cors';
 import userRouter from './modules/user/user.router';
 import adminRouter from './modules/admin/admin.router';
 import partnerRouter from './modules/partner/partner.router';
-import notificationRouter from './modules/notifications/notification.router';
+
 
 const app = express();
 
@@ -17,7 +17,7 @@ app.get('/', (_req: Request, res: Response) => {
         success: true,
         message: 'Welcome to Tazkora API',
         version: '1.0.0',
-        documentation: '/api-docs', // If you add Swagger/OpenAPI docs later
+        documentation: '/api-docs',
         healthCheck: '/health'
     });
 });
@@ -35,12 +35,11 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // API Routes
 app.use('/api/users', userRouter);
+app.use('/api/admin', adminRouter);  // This will now handle admin/partners routes
+app.use('/api/partners', partnerRouter); // This will handle both public and admin routes
 
-app.use('/api/admin', adminRouter);
+// Notifications
 
-app.use('/api/admin/partners', partnerRouter);
-
-app.use('/api/notifications', notificationRouter);
 
 // Error handling
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
@@ -60,7 +59,9 @@ app.use((_req: Request, res: Response) => {
             root: '/',
             health: '/health',
             api: {
-                users: '/api/users/*'
+                users: '/api/users/*',
+                partners: '/api/partners/*',
+                admin: '/api/admin/*'
             }
         }
     });

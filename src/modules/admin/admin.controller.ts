@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { AdminCrud } from './admin.crud';
 import { AdminLoginSchema } from './admin.schema';
-import { generateToken } from '../../middleware/auth.middleware';
+import { generateToken } from '../../middleware/auth.utils';
+import { AuthenticatedAdminRequest } from '../../middleware/admin.middleware';
 
 export class AdminController {
     private adminCrud: AdminCrud;
@@ -63,11 +64,8 @@ export class AdminController {
         }
     }
 
-
-    async logout(_req: Request, res: Response): Promise<Response> {
+    async logout(_req: AuthenticatedAdminRequest, res: Response): Promise<Response> {
         try {
-            // You could add token to a blacklist here if implementing
-            // For now, we'll just send a success response
             return res.status(200).json({
                 success: true,
                 message: 'Logged out successfully'
@@ -80,8 +78,4 @@ export class AdminController {
             });
         }
     }
-
-
-
-    
 }

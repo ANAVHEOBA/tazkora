@@ -153,4 +153,22 @@ export class PartnerController {
         }
     }
 
+
+    async getAll(_req: Request, res: Response): Promise<Response> {
+        try {
+            const partners = await this.partnerCrud.getAllPartners();
+            
+            return res.status(200).json({
+                success: true,
+                partners
+            });
+        } catch (error) {
+            console.error('Get All Partners Error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Internal server error'
+            });
+        }
+    }
+
 }

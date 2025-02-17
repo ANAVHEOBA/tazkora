@@ -12,7 +12,7 @@ const mailTransporter = nodemailer.createTransport({
 });
 
 // Test the transporter
-mailTransporter.verify(function(error, success) {
+mailTransporter.verify(function(error) {
     if (error) {
         console.log("Email service error:", error);
     } else {

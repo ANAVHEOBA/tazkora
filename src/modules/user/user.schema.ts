@@ -16,5 +16,31 @@ export const UserSchema = new Schema({
     },
     lastLoginAt: {
         type: Date
+    },
+    completedTasks: [{
+        partnerId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Partner',
+            required: true
+        },
+        completedAt: {
+            type: Date,
+            default: Date.now
+        },
+        pointsEarned: {
+            type: Number,
+            required: true
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'approved', 'rejected'],
+            default: 'pending'
+        }
+    }],
+    totalPoints: {
+        type: Number,
+        default: 0
     }
+}, {
+    timestamps: true
 });

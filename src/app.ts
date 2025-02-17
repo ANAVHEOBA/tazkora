@@ -3,7 +3,7 @@ import cors from 'cors';
 import userRouter from './modules/user/user.router';
 import adminRouter from './modules/admin/admin.router';
 import partnerRouter from './modules/partner/partner.router';
-import notificationRouter from './modules/notifications/notification.router';
+
 
 const app = express();
 
@@ -39,7 +39,7 @@ app.use('/api/admin', adminRouter);  // This will now handle admin/partners rout
 app.use('/api/partners', partnerRouter); // This will handle both public and admin routes
 
 // Notifications
-app.use('/api/notifications', notificationRouter);
+
 
 // Error handling
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

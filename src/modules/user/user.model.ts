@@ -21,6 +21,14 @@ export interface IUser extends Document {
     completedTasks: CompletedTask[];
     totalPoints: number;
     createdTasks: UserTask[];
+    firstName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    bio?: string;
+    profilePicture?: string;
+    dateOfBirth?: Date;
+    country?: string;
+    city?: string;
 }
 
 const userTaskSchema = new mongoose.Schema({
@@ -72,7 +80,15 @@ const userSchema = new mongoose.Schema({
         }
     }],
     totalPoints: { type: Number, default: 0 },
-    createdTasks: [userTaskSchema]
+    createdTasks: [userTaskSchema],
+    firstName: { type: String },
+    lastName: { type: String },
+    phoneNumber: { type: String },
+    bio: { type: String },
+    profilePicture: { type: String },
+    dateOfBirth: { type: Date },
+    country: { type: String },
+    city: { type: String }
 }, { timestamps: true });
 
 export const User = model<IUser>('User', userSchema);

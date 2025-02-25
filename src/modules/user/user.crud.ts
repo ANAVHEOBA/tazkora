@@ -1,6 +1,6 @@
 import { User, IUser } from './user.model';
 import mongoose from 'mongoose';
-import { CreateTaskInput, UserTask } from './user.types';
+import { CreateTaskInput, UserTask, UpdateUserInput } from './user.types';
 
 interface CompletedTask {
     partnerId: mongoose.Types.ObjectId;
@@ -136,5 +136,21 @@ export class UserCrud {
             .lean();
 
         return user?.createdTasks || [];
+    }
+
+    async updateUserDetails(
+        userId: string | mongoose.Types.ObjectId,
+        updateData: UpdateUserInput
+    ): Promise<IUser | null> {
+        const sanitizedData: any = { ...updateData };
+        if (updateData.dateOfBirth) {
+            sanitizedData.dateOfBirth = new Date(updateData.dateOfBirth);
+        }
+
+        return User.findByIdAndUpdate(
+            userId,
+            { $set: sanitizedData },
+            { new: true }
+        );
     }
 }

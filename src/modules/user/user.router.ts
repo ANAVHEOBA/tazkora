@@ -26,4 +26,7 @@ router.get('/partners/:partnerId/tasks/status', userController.getTaskStatus.bin
 router.post('/tasks/create', userController.createTask.bind(userController));
 router.get('/tasks/created', userController.getCreatedTasks.bind(userController));
 
+// Add new route for updating user details
+router.patch('/me', userController.updateUserDetails.bind(userController));
+
 export default router;

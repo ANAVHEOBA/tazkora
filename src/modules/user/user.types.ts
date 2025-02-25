@@ -27,4 +27,15 @@ export interface UserTask {
     status: 'active' | 'completed' | 'expired';
     createdAt: Date;
     updatedAt: Date;
+}
+
+export interface UpdateUserInput {
+    firstName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    bio?: string;
+    profilePicture?: string;
+    dateOfBirth?: string; // ISO date string
+    country?: string;
+    city?: string;
 } 

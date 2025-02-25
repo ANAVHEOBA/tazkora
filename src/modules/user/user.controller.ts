@@ -5,7 +5,7 @@ import { generateToken } from '../../middleware/auth.utils';
 import { PartnerCrud } from '../partner/partner.crud';
 import mongoose from 'mongoose';
 import { AuthenticatedUserRequest } from '../../middleware/user.middleware';
-import { CreateTaskInput } from './user.types';
+import { CreateTaskInput, UpdateUserInput } from './user.types';
 
 // Define interfaces for type safety
 interface CompletedTask {
@@ -353,6 +353,69 @@ export class UserController {
             return res.status(500).json({
                 success: false,
                 message: 'Failed to fetch created tasks'
+            });
+        }
+    }
+
+    async updateUserDetails(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+        try {
+            const userId = req.user?.id;
+            const updateData: UpdateUserInput = req.body;
+
+            if (!userId) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'User not authenticated'
+                });
+            }
+
+            // Validate update data
+            const allowedFields = [
+                'firstName', 'lastName', 'phoneNumber', 'bio',
+                'profilePicture', 'dateOfBirth', 'country', 'city'
+            ];
+            
+            const invalidFields = Object.keys(updateData).filter(
+                field => !allowedFields.includes(field)
+            );
+
+            if (invalidFields.length > 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid fields: ${invalidFields.join(', ')}`
+                });
+            }
+
+            const updatedUser = await this.userCrud.updateUserDetails(userId, updateData);
+
+            if (!updatedUser) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'User not found'
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: 'User details updated successfully',
+                user: {
+                    id: updatedUser._id,
+                    email: updatedUser.email,
+                    firstName: updatedUser.firstName,
+                    lastName: updatedUser.lastName,
+                    phoneNumber: updatedUser.phoneNumber,
+                    bio: updatedUser.bio,
+                    profilePicture: updatedUser.profilePicture,
+                    dateOfBirth: updatedUser.dateOfBirth,
+                    country: updatedUser.country,
+                    city: updatedUser.city
+                }
+            });
+        } catch (error) {
+            console.error('Update User Details Error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to update user details'
             });
         }
     }

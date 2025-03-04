@@ -3,6 +3,7 @@ import cors from 'cors';
 import userRouter from './modules/user/user.router';
 import adminRouter from './modules/admin/admin.router';
 import partnerRouter from './modules/partner/partner.router';
+import walletRouter from './modules/wallet/wallet.router';
 
 
 const app = express();
@@ -37,6 +38,7 @@ app.get('/health', (_req: Request, res: Response) => {
 app.use('/api/users', userRouter);
 app.use('/api/admin', adminRouter);  // This will now handle admin/partners routes
 app.use('/api/partners', partnerRouter); // This will handle both public and admin routes
+app.use('/api/wallet', walletRouter);
 
 // Notifications
 

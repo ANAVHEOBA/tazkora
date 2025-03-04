@@ -9,6 +9,34 @@ interface CompletedTask {
     status: 'pending' | 'approved' | 'rejected';
 }
 
+interface ITwitterConnection {
+    twitterId: string;
+    username: string;
+    accessToken: string;
+    connectedAt: Date;
+    isConnected: boolean;
+}
+
+interface IDiscordConnection {
+    discordId: string;
+    username: string;
+    email?: string;
+    accessToken: string;
+    refreshToken: string;
+    connectedAt: Date;
+    isConnected: boolean;
+}
+
+interface ITelegramConnection {
+    telegramId: number;
+    username?: string;
+    firstName: string;
+    lastName?: string;
+    photoUrl?: string;
+    authDate: Date;
+    isConnected: boolean;
+}
+
 export interface IUser extends Document {
     _id: mongoose.Types.ObjectId;
     email: string;
@@ -29,6 +57,9 @@ export interface IUser extends Document {
     dateOfBirth?: Date;
     country?: string;
     city?: string;
+    twitterConnection?: ITwitterConnection;
+    discordConnection?: IDiscordConnection;
+    telegramConnection?: ITelegramConnection;
 }
 
 const userTaskSchema = new mongoose.Schema({
@@ -49,6 +80,7 @@ const userTaskSchema = new mongoose.Schema({
     targetLink: { type: String },
     budget: { type: Number, required: true },
     bio: { type: String },
+    image: { type: String, required: true },
     status: { 
         type: String, 
         enum: ['active', 'completed', 'expired'], 
@@ -88,7 +120,32 @@ const userSchema = new mongoose.Schema({
     profilePicture: { type: String },
     dateOfBirth: { type: Date },
     country: { type: String },
-    city: { type: String }
+    city: { type: String },
+    twitterConnection: {
+        twitterId: String,
+        username: String,
+        accessToken: String,
+        connectedAt: Date,
+        isConnected: Boolean
+    },
+    discordConnection: {
+        discordId: String,
+        username: String,
+        email: String,
+        accessToken: String,
+        refreshToken: String,
+        connectedAt: Date,
+        isConnected: Boolean
+    },
+    telegramConnection: {
+        telegramId: Number,
+        username: String,
+        firstName: String,
+        lastName: String,
+        photoUrl: String,
+        authDate: Date,
+        isConnected: Boolean
+    }
 }, { timestamps: true });
 
 export const User = model<IUser>('User', userSchema);

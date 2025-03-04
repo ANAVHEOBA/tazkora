@@ -10,6 +10,7 @@ export interface CreateTaskInput {
     targetLink?: string;
     budget: number;
     bio?: string;
+    image: string; // Required image URL/path
 }
 
 export interface UserTask {
@@ -24,6 +25,7 @@ export interface UserTask {
     targetLink?: string;
     budget: number;
     bio?: string;
+    image: string; // Required image URL/path
     status: 'active' | 'completed' | 'expired';
     createdAt: Date;
     updatedAt: Date;

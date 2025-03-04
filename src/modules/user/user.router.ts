@@ -18,15 +18,29 @@ router.use(userMiddleware); // Apply user middleware to all routes below this li
 router.get('/partners/:partnerId', userController.viewPartnerDetails.bind(userController));
 router.get('/me/tasks', userController.getMyTasks.bind(userController));
 
-// Add new protected routes for task submission
+// Task submission routes
 router.post('/partners/:partnerId/tasks', userController.submitTask.bind(userController));
 router.get('/partners/:partnerId/tasks/status', userController.getTaskStatus.bind(userController));
 
-// Add new routes for task creation
+// Task creation routes
 router.post('/tasks/create', userController.createTask.bind(userController));
 router.get('/tasks/created', userController.getCreatedTasks.bind(userController));
 
-// Add new route for updating user details
+// User details route
 router.patch('/me', userController.updateUserDetails.bind(userController));
+
+// Twitter routes 
+router.get('/twitter/connect', userMiddleware, userController.connectTwitter.bind(userController));
+router.get('/twitter/callback', userMiddleware, userController.twitterCallback.bind(userController));
+router.post('/twitter/disconnect', userMiddleware, userController.disconnectTwitter.bind(userController));
+
+// Discord routes
+router.get('/discord/connect', userMiddleware, userController.connectDiscord.bind(userController));
+router.get('/discord/callback', userMiddleware, userController.discordCallback.bind(userController));
+router.post('/discord/disconnect', userMiddleware, userController.disconnectDiscord.bind(userController));
+
+// Telegram routes
+router.post('/telegram/connect', userMiddleware, userController.connectTelegram.bind(userController));
+router.post('/telegram/disconnect', userMiddleware, userController.disconnectTelegram.bind(userController));
 
 export default router;

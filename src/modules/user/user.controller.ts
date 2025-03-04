@@ -6,6 +6,9 @@ import { PartnerCrud } from '../partner/partner.crud';
 import mongoose from 'mongoose';
 import { AuthenticatedUserRequest } from '../../middleware/user.middleware';
 import { CreateTaskInput, UpdateUserInput } from './user.types';
+import { TwitterService } from './twitter.service';
+import { DiscordService } from './discord.service';
+import { TelegramService } from './telegram.service';
 
 // Define interfaces for type safety
 interface CompletedTask {
@@ -18,10 +21,16 @@ interface CompletedTask {
 export class UserController {
     private userCrud: UserCrud;
     private partnerCrud: PartnerCrud;
+    private twitterService: TwitterService;
+    private discordService: DiscordService;
+    private telegramService: TelegramService;
 
     constructor() {
         this.userCrud = new UserCrud();
         this.partnerCrud = new PartnerCrud();
+        this.twitterService = new TwitterService();
+        this.discordService = new DiscordService();
+        this.telegramService = new TelegramService();
     }
 
     async requestAccess(req: Request, res: Response): Promise<void> {
@@ -308,10 +317,10 @@ export class UserController {
             }
 
             // Validate task input
-            if (!taskInput.title || !taskInput.description || !taskInput.budget) {
+            if (!taskInput.title || !taskInput.description || !taskInput.budget || !taskInput.image) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Missing required fields'
+                    message: 'Missing required fields (title, description, budget, image)'
                 });
             }
 
@@ -416,6 +425,144 @@ export class UserController {
             return res.status(500).json({
                 success: false,
                 message: 'Failed to update user details'
+            });
+        }
+    }
+
+    async connectTwitter(_req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+        try {
+            const authUrl = await this.twitterService.getAuthUrl();
+            return res.json({ url: authUrl });
+        } catch (error) {
+            console.error('Twitter Connect Error:', error);
+            return res.status(500).json({ success: false, message: 'Failed to initiate Twitter connection' });
+        }
+    }
+
+    async twitterCallback(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+        try {
+            const { code } = req.query;
+            const userId = req.user?.id;
+
+            if (!code || !userId) {
+                return res.status(400).json({ success: false, message: 'Invalid request' });
+            }
+
+            const tokenData = await this.twitterService.getAccessToken(code as string);
+            const userInfo = await this.twitterService.getUserInfo(tokenData.access_token);
+
+            await this.userCrud.connectTwitter(userId, {
+                id: userInfo.data.id,
+                username: userInfo.data.username,
+                accessToken: tokenData.access_token
+            });
+
+            return res.json({ success: true, message: 'Twitter connected successfully' });
+        } catch (error) {
+            console.error('Twitter Callback Error:', error);
+            return res.status(500).json({ success: false, message: 'Failed to complete Twitter connection' });
+        }
+    }
+
+    async disconnectTwitter(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+        try {
+            const userId = req.user?.id;
+            await this.userCrud.disconnectTwitter(userId);
+            return res.json({ success: true, message: 'Twitter disconnected successfully' });
+        } catch (error) {
+            console.error('Twitter Disconnect Error:', error);
+            return res.status(500).json({ success: false, message: 'Failed to disconnect Twitter' });
+        }
+    }
+
+    async connectDiscord(_req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+        try {
+            const authUrl = await this.discordService.getAuthUrl();
+            return res.json({ url: authUrl });
+        } catch (error) {
+            console.error('Discord Connect Error:', error);
+            return res.status(500).json({ success: false, message: 'Failed to initiate Discord connection' });
+        }
+    }
+
+    async discordCallback(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+        try {
+            const { code } = req.query;
+            const userId = req.user?.id;
+
+            if (!code || !userId) {
+                return res.status(400).json({ success: false, message: 'Invalid request' });
+            }
+
+            const tokenData = await this.discordService.getAccessToken(code as string);
+            const userInfo = await this.discordService.getUserInfo(tokenData.access_token);
+
+            await this.userCrud.connectDiscord(userId, {
+                id: userInfo.id,
+                username: userInfo.username,
+                email: userInfo.email,
+                accessToken: tokenData.access_token,
+                refreshToken: tokenData.refresh_token
+            });
+
+            return res.json({ success: true, message: 'Discord connected successfully' });
+        } catch (error) {
+            console.error('Discord Callback Error:', error);
+            return res.status(500).json({ success: false, message: 'Failed to complete Discord connection' });
+        }
+    }
+
+    async disconnectDiscord(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+        try {
+            const userId = req.user?.id;
+            await this.userCrud.disconnectDiscord(userId);
+            return res.json({ success: true, message: 'Discord disconnected successfully' });
+        } catch (error) {
+            console.error('Discord Disconnect Error:', error);
+            return res.status(500).json({ success: false, message: 'Failed to disconnect Discord' });
+        }
+    }
+
+    async connectTelegram(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+        try {
+            const userId = req.user?.id;
+            const telegramData = req.body;
+
+            if (!this.telegramService.validateAuthData(telegramData)) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Invalid Telegram authentication data' 
+                });
+            }
+
+            await this.userCrud.connectTelegram(userId, telegramData);
+
+            return res.json({ 
+                success: true, 
+                message: 'Telegram connected successfully' 
+            });
+        } catch (error) {
+            console.error('Telegram Connect Error:', error);
+            return res.status(500).json({ 
+                success: false, 
+                message: 'Failed to connect Telegram' 
+            });
+        }
+    }
+
+    async disconnectTelegram(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+        try {
+            const userId = req.user?.id;
+            await this.userCrud.disconnectTelegram(userId);
+            return res.json({ 
+                success: true, 
+                message: 'Telegram disconnected successfully' 
+            });
+        } catch (error) {
+            console.error('Telegram Disconnect Error:', error);
+            return res.status(500).json({ 
+                success: false, 
+                message: 'Failed to disconnect Telegram' 
             });
         }
     }

@@ -153,4 +153,92 @@ export class UserCrud {
             { new: true }
         );
     }
+
+    async connectTwitter(userId: string, twitterData: any): Promise<IUser | null> {
+        return User.findByIdAndUpdate(
+            userId,
+            {
+                $set: {
+                    twitterConnection: {
+                        twitterId: twitterData.id,
+                        username: twitterData.username,
+                        accessToken: twitterData.accessToken,
+                        connectedAt: new Date(),
+                        isConnected: true
+                    }
+                }
+            },
+            { new: true }
+        );
+    }
+
+    async disconnectTwitter(userId: string): Promise<IUser | null> {
+        return User.findByIdAndUpdate(
+            userId,
+            {
+                $unset: { twitterConnection: 1 }
+            },
+            { new: true }
+        );
+    }
+
+    async connectDiscord(userId: string, discordData: any): Promise<IUser | null> {
+        return User.findByIdAndUpdate(
+            userId,
+            {
+                $set: {
+                    discordConnection: {
+                        discordId: discordData.id,
+                        username: discordData.username,
+                        email: discordData.email,
+                        accessToken: discordData.accessToken,
+                        refreshToken: discordData.refreshToken,
+                        connectedAt: new Date(),
+                        isConnected: true
+                    }
+                }
+            },
+            { new: true }
+        );
+    }
+
+    async disconnectDiscord(userId: string): Promise<IUser | null> {
+        return User.findByIdAndUpdate(
+            userId,
+            {
+                $unset: { discordConnection: 1 }
+            },
+            { new: true }
+        );
+    }
+
+    async connectTelegram(userId: string, telegramData: any): Promise<IUser | null> {
+        return User.findByIdAndUpdate(
+            userId,
+            {
+                $set: {
+                    telegramConnection: {
+                        telegramId: telegramData.id,
+                        username: telegramData.username,
+                        firstName: telegramData.first_name,
+                        lastName: telegramData.last_name,
+                        photoUrl: telegramData.photo_url,
+                        authDate: new Date(telegramData.auth_date * 1000),
+                        isConnected: true
+                    }
+                }
+            },
+            { new: true }
+        );
+    }
+
+    async disconnectTelegram(userId: string): Promise<IUser | null> {
+        return User.findByIdAndUpdate(
+            userId,
+            {
+                $unset: { telegramConnection: 1 }
+            },
+            { new: true }
+        );
+    }
 }

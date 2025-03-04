@@ -14,17 +14,13 @@ interface TelegramUserData {
 
 export class TelegramService {
   private botToken: string;
-  private appId: string;
-  private appHash: string;
 
   constructor() {
-    if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_APP_ID || !env.TELEGRAM_APP_HASH) {
-      throw new Error('Telegram credentials not configured');
+    if (!env.TELEGRAM_BOT_TOKEN) {
+      throw new Error('Telegram bot token not configured');
     }
 
     this.botToken = env.TELEGRAM_BOT_TOKEN;
-    this.appId = env.TELEGRAM_APP_ID;
-    this.appHash = env.TELEGRAM_APP_HASH;
   }
 
   validateAuthData(authData: TelegramUserData): boolean {

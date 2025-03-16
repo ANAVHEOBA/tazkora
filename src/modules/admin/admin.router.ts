@@ -7,6 +7,10 @@ const router = Router();
 const adminController = new AdminController();
 const partnerController = new PartnerController();
 
+
+// Add this route before other routes
+router.post('/setup', adminController.setup.bind(adminController));
+
 // Admin auth routes
 router.post('/login', adminController.login.bind(adminController));
 router.post('/logout', adminMiddleware, adminController.logout.bind(adminController));
@@ -17,5 +21,7 @@ router.post('/partners', adminMiddleware, partnerController.create.bind(partnerC
 router.get('/partners/:id', adminMiddleware, partnerController.getById.bind(partnerController));
 router.put('/partners/:id', adminMiddleware, partnerController.update.bind(partnerController));
 router.delete('/partners/:id', adminMiddleware, partnerController.delete.bind(partnerController));
+
+
 
 export default router;

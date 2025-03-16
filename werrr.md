@@ -36,3 +36,30 @@ a@a:~/tazkora$ curl -X POST https://tazkora-3.onrender.com/api/users/twitter/dis
 a@a:~/tazkora$ curl -X GET https://tazkora-3.onrender.com/api/users/discord/connect \
 -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q2YjcxY2UxOTBhYzFjYTdkYzU2ZjEiLCJlbWFpbCI6ImFuYXZoZW9iYWFicmFoYW1AZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NDIxMjQ5NjAsImV4cCI6MTc0MjIxMTM2MH0.xu3gVqhZJsXA-STBsfUyNkVFB9pIDelZJFqsX8G9JQs"
 {"url":"https://discord.com/oauth2/authorize?client_id=1346478400742887537&redirect_uri=https%3A%2F%2Ftazkora-production.up.railway.app%2Fapi%2Fauth%2Fdiscord%2Fcallback&response_type=code&scope=identify%20email"}a@a:~/tazkora$ 
+
+
+
+
+
+a@a:~/tazkora$ curl -X GET https://tazkora-3.onrender.com/api/users/discord/connect -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q2YjcxY2UxOTBhYzFjYTdkYzU2ZjEiLCJlbWFpbCI6ImFuYXZoZW9iYWFicmFoYW1AZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NDIxMjQ5NjAsImV4cCI6MTc0MjIxMTM2MH0.xu3gVqhZJsXA-STBsfUyNkVFB9pIDelZJFqsX8G9JQs"
+{"url":"https://discord.com/oauth2/authorize?client_id=1346478400742887537&redirect_uri=https%3A%2F%2Ftazkora-3.onrender.com%2Fapi%2Fusers%2Fdiscord%2Fcallback&response_type=code&scope=identify%20email&state=eyJ1c2VySWQiOiI2N2Q2YjcxY2UxOTBhYzFjYTdkYzU2ZjEiLCJ0aW1lc3RhbXAiOiIyMDI1LTAzLTE2VDE2OjExOjAzLjQ4N1oifQ=="}a@a:~/tazkora$ 
+
+
+
+
+
+
+{"success":true,"message":"Discord connected successfully","data":{"id":"1155866911591120967","username":"anavheoba_17","email":"wisdomabraham92@gmail.com"}}
+
+
+
+
+
+
+
+
+
+
+a@a:~/tazkora$ curl -X POST https://tazkora-3.onrender.com/api/users/discord/disconnect \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q2YjcxY2UxOTBhYzFjYTdkYzU2ZjEiLCJlbWFpbCI6ImFuYXZoZW9iYWFicmFoYW1AZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NDIxMjQ5NjAsImV4cCI6MTc0MjIxMTM2MH0.xu3gVqhZJsXA-STBsfUyNkVFB9pIDelZJFqsX8G9JQs"
+{"success":true,"message":"Discord disconnected successfully"}a@a:~/tazkora$ 

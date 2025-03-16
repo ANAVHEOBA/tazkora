@@ -78,4 +78,29 @@ export class AdminController {
             });
         }
     }
+
+    async setup(req: Request, res: Response): Promise<Response> {
+        try {
+            // Simple security check - you should use an environment variable for this
+            if (req.body.setupKey !== 'your-secure-setup-key') {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Invalid setup key'
+                });
+            }
+
+            await this.adminCrud.createInitialAdmin();
+            
+            return res.status(200).json({
+                success: true,
+                message: 'Admin account created successfully'
+            });
+        } catch (error) {
+            console.error('Admin Setup Error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to create admin account'
+            });
+        }
+    }
 }

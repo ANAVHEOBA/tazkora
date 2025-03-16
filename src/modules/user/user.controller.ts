@@ -460,13 +460,16 @@ export class UserController {
             }
 
             try {
-                const tokenData = await this.twitterService.getAccessToken(code as string);
+                // Decode the state to get the verifier
+                const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString());
+                const verifier = stateData.verifier;
+
+                const tokenData = await this.twitterService.getAccessToken(code as string, verifier);
                 console.log('Token Data Received:', tokenData);
 
                 const userInfo = await this.twitterService.getUserInfo(tokenData.access_token);
                 console.log('User Info Received:', userInfo);
 
-                // Return JSON response with the Twitter data
                 return res.json({
                     success: true,
                     message: 'Twitter authentication successful',

@@ -39,9 +39,11 @@ export class TwitterService {
 
   async getAuthUrl(): Promise<string> {
     const scope = 'tweet.read users.read offline.access';
-    // Include userId and token in state
+    const codeVerifier = this.generateCodeVerifier();
+    const codeChallenge = await this.generateCodeChallenge(codeVerifier);
+    
     const state = Buffer.from(JSON.stringify({
-        verifier: Math.random().toString(36).substring(7),
+        verifier: codeVerifier,
         timestamp: Date.now()
     })).toString('base64');
     
@@ -51,22 +53,40 @@ export class TwitterService {
     url.searchParams.append('redirect_uri', this.redirectUri);
     url.searchParams.append('scope', scope);
     url.searchParams.append('state', state);
-    url.searchParams.append('code_challenge_method', 'plain');
-    url.searchParams.append('code_challenge', 'challenge');
+    url.searchParams.append('code_challenge_method', 'S256');
+    url.searchParams.append('code_challenge', codeChallenge);
 
-    // Debug log
     console.log('Generated Twitter Auth URL:', url.toString());
-
     return url.toString();
   }
 
-  async getAccessToken(code: string): Promise<TwitterTokenResponse> {
+  private generateCodeVerifier(): string {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+    const length = 128;
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  }
+
+  private async generateCodeChallenge(verifier: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(verifier);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return Buffer.from(hash).toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
+  }
+
+  async getAccessToken(code: string, verifier: string): Promise<TwitterTokenResponse> {
     const params = new URLSearchParams();
     params.append('code', code);
     params.append('grant_type', 'authorization_code');
     params.append('redirect_uri', this.redirectUri);
     params.append('client_id', this.clientId);
-    params.append('code_verifier', 'challenge');
+    params.append('code_verifier', verifier);
 
     try {
       const response = await axios.post<TwitterTokenResponse>(

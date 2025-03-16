@@ -537,28 +537,59 @@ export class UserController {
         }
     }
 
-    async connectDiscord(_req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+    async connectDiscord(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
         try {
-            const authUrl = await this.discordService.getAuthUrl();
+            const userId = req.user?.id;
+            if (!userId) {
+                return res.status(401).json({ 
+                    success: false, 
+                    message: 'User not authenticated' 
+                });
+            }
+
+            const authUrl = await this.discordService.getAuthUrl(userId);
             return res.json({ url: authUrl });
         } catch (error) {
             console.error('Discord Connect Error:', error);
-            return res.status(500).json({ success: false, message: 'Failed to initiate Discord connection' });
+            return res.status(500).json({ 
+                success: false, 
+                message: 'Failed to initiate Discord connection' 
+            });
         }
     }
 
-    async discordCallback(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+    async discordCallback(req: Request, res: Response): Promise<Response> {
         try {
-            const { code } = req.query;
-            const userId = req.user?.id;
+            const { code, state } = req.query;
+            
+            console.log('Discord Callback Request:', {
+                code,
+                state,
+                headers: req.headers,
+                url: req.url,
+                method: req.method
+            });
 
-            if (!code || !userId) {
-                return res.status(400).json({ success: false, message: 'Invalid request' });
+            if (!code || !state) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Invalid request: Missing code or state' 
+                });
             }
+
+            // Decode the state to get user info
+            const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString());
+            const userId = stateData.userId;
+
+            console.log('State Data:', {
+                userId,
+                timestamp: new Date(stateData.timestamp).toISOString()
+            });
 
             const tokenData = await this.discordService.getAccessToken(code as string);
             const userInfo = await this.discordService.getUserInfo(tokenData.access_token);
 
+            // Store the Discord connection
             await this.userCrud.connectDiscord(userId, {
                 id: userInfo.id,
                 username: userInfo.username,
@@ -567,10 +598,21 @@ export class UserController {
                 refreshToken: tokenData.refresh_token
             });
 
-            return res.json({ success: true, message: 'Discord connected successfully' });
+            return res.json({
+                success: true,
+                message: 'Discord connected successfully',
+                data: {
+                    id: userInfo.id,
+                    username: userInfo.username,
+                    email: userInfo.email
+                }
+            });
         } catch (error) {
             console.error('Discord Callback Error:', error);
-            return res.status(500).json({ success: false, message: 'Failed to complete Discord connection' });
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to complete Discord connection'
+            });
         }
     }
 

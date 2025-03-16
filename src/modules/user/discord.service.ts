@@ -32,9 +32,14 @@ export class DiscordService {
     this.redirectUri = env.DISCORD_REDIRECT_URI;
   }
 
-  async getAuthUrl(): Promise<string> {
+  async getAuthUrl(userId: string): Promise<string> {
     const scope = 'identify email';
-    return `https://discord.com/oauth2/authorize?client_id=${this.clientId}&redirect_uri=${encodeURIComponent(this.redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
+    const state = Buffer.from(JSON.stringify({
+        userId,
+        timestamp: new Date().toISOString()
+    })).toString('base64');
+
+    return `https://discord.com/oauth2/authorize?client_id=${this.clientId}&redirect_uri=${encodeURIComponent(this.redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&state=${state}`;
   }
 
   async getAccessToken(code: string): Promise<DiscordTokenResponse> {

@@ -9,6 +9,14 @@ import walletRouter from './modules/wallet/wallet.router';
 const app = express();
 
 // Middleware
+app.use((req: Request, _res: Response, next: NextFunction) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    console.log('Headers:', req.headers);
+    console.log('Query:', req.query);
+    console.log('Body:', req.body);
+    next();
+});
+
 app.use(cors());
 app.use(express.json());
 

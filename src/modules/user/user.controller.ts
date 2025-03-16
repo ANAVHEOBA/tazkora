@@ -444,13 +444,25 @@ export class UserController {
 
     async twitterCallback(req: Request, res: Response): Promise<Response> {
         try {
-            const { code, state } = req.query;
+            const { code, state, error, error_description } = req.query;
             
             console.log('Twitter Callback Request:', {
                 code,
                 state,
-                headers: req.headers
+                error,
+                error_description,
+                headers: req.headers,
+                url: req.url,
+                method: req.method
             });
+
+            if (error) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Twitter authorization failed',
+                    error: error_description || error
+                });
+            }
 
             if (!code || !state) {
                 return res.status(400).json({ 
@@ -464,11 +476,13 @@ export class UserController {
                 const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString());
                 const verifier = stateData.verifier;
 
-                const tokenData = await this.twitterService.getAccessToken(code as string, verifier);
-                console.log('Token Data Received:', tokenData);
+                console.log('State Data:', {
+                    verifier: verifier.substring(0, 10) + '...',
+                    timestamp: new Date(stateData.timestamp).toISOString()
+                });
 
+                const tokenData = await this.twitterService.getAccessToken(code as string, verifier);
                 const userInfo = await this.twitterService.getUserInfo(tokenData.access_token);
-                console.log('User Info Received:', userInfo);
 
                 return res.json({
                     success: true,
@@ -476,7 +490,7 @@ export class UserController {
                     data: {
                         id: userInfo.data.id,
                         username: userInfo.data.username,
-                        accessToken: tokenData.access_token
+                        accessToken: tokenData.access_token.substring(0, 10) + '...'
                     }
                 });
             } catch (error) {

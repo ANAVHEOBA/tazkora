@@ -88,28 +88,44 @@ export class TwitterService {
     params.append('client_id', this.clientId);
     params.append('code_verifier', verifier);
 
-    try {
-      const response = await axios.post<TwitterTokenResponse>(
-        'https://api.twitter.com/2/oauth2/token',
-        params,
-        {
-          headers: {
-            'Authorization': `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`,
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
-        }
-      );
+    console.log('Twitter Token Request:', {
+        url: 'https://api.twitter.com/2/oauth2/token',
+        params: Object.fromEntries(params),
+        clientId: this.clientId.substring(0, 10) + '...'
+    });
 
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('Twitter getAccessToken error:', {
-          status: error.response?.status,
-          data: error.response?.data,
-          headers: error.response?.headers
+    try {
+        const response = await axios.post<TwitterTokenResponse>(
+            'https://api.twitter.com/2/oauth2/token',
+            params,
+            {
+                headers: {
+                    'Authorization': `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            }
+        );
+
+        console.log('Twitter Token Response:', {
+            status: response.status,
+            data: response.data
         });
-      }
-      throw new Error('Failed to get Twitter access token');
+
+        return response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            console.error('Twitter getAccessToken error:', {
+                status: error.response?.status,
+                data: error.response?.data,
+                headers: error.response?.headers,
+                config: {
+                    url: error.config?.url,
+                    method: error.config?.method,
+                    headers: error.config?.headers
+                }
+            });
+        }
+        throw new Error('Failed to get Twitter access token');
     }
   }
 

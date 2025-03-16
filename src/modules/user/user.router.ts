@@ -12,6 +12,9 @@ router.post('/verify', userController.verifyAndLogin.bind(userController));
 // Public partner routes
 router.get('/partners', userController.viewPartners.bind(userController));
 
+// Twitter routes - move these above the userMiddleware
+router.get('/twitter/callback', userController.twitterCallback.bind(userController));
+
 // Protected routes (user required)
 router.use(userMiddleware); // Apply user middleware to all routes below this line
 
@@ -29,10 +32,9 @@ router.get('/tasks/created', userController.getCreatedTasks.bind(userController)
 // User details route
 router.patch('/me', userController.updateUserDetails.bind(userController));
 
-// Twitter routes 
-router.get('/twitter/connect', userMiddleware, userController.connectTwitter.bind(userController));
-router.get('/twitter/callback', userController.twitterCallback.bind(userController));
-router.post('/twitter/disconnect', userMiddleware, userController.disconnectTwitter.bind(userController));
+// Twitter routes that require authentication
+router.get('/twitter/connect', userController.connectTwitter.bind(userController));
+router.post('/twitter/disconnect', userController.disconnectTwitter.bind(userController));
 
 // Discord routes
 router.get('/discord/connect', userMiddleware, userController.connectDiscord.bind(userController));

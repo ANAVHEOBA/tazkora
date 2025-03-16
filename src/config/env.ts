@@ -32,6 +32,7 @@ export const env = {
     TWITTER_CLIENT_ID: process.env.TWITTER_CLIENT_ID || '',
     TWITTER_CLIENT_SECRET: process.env.TWITTER_CLIENT_SECRET || '',
     TWITTER_CALLBACK_URL: 'https://tazkora-3.onrender.com/api/users/twitter/callback',
+    RETURN_JSON_RESPONSE: true,
     DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID || '',
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET || '',
     DISCORD_REDIRECT_URI: 'https://tazkora-production.up.railway.app/api/auth/discord/callback',

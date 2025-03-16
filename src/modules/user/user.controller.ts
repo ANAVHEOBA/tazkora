@@ -9,6 +9,7 @@ import { CreateTaskInput, UpdateUserInput } from './user.types';
 import { TwitterService } from './twitter.service';
 import { DiscordService } from './discord.service';
 import { TelegramService } from './telegram.service';
+// import { env } from '../../config/env';
 
 // Define interfaces for type safety
 interface CompletedTask {
@@ -429,9 +430,17 @@ export class UserController {
         }
     }
 
-    async connectTwitter(_req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+    async connectTwitter(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
         try {
-            const authUrl = await this.twitterService.getAuthUrl();
+            const userId = req.user?.id;
+            if (!userId) {
+                return res.status(401).json({ 
+                    success: false, 
+                    message: 'User not authenticated' 
+                });
+            }
+
+            const authUrl = await this.twitterService.getAuthUrl(userId);
             return res.json({ url: authUrl });
         } catch (error) {
             console.error('Twitter Connect Error:', error);
@@ -471,36 +480,37 @@ export class UserController {
                 });
             }
 
-            try {
-                // Decode the state to get the verifier
-                const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString());
-                const verifier = stateData.verifier;
+            // Decode the state to get the verifier and user info
+            const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString());
+            const verifier = stateData.verifier;
+            const userId = stateData.userId;
 
-                console.log('State Data:', {
-                    verifier: verifier.substring(0, 10) + '...',
-                    timestamp: new Date(stateData.timestamp).toISOString()
-                });
+            console.log('State Data:', {
+                verifier: verifier.substring(0, 10) + '...',
+                userId,
+                timestamp: new Date(stateData.timestamp).toISOString()
+            });
 
-                const tokenData = await this.twitterService.getAccessToken(code as string, verifier);
-                const userInfo = await this.twitterService.getUserInfo(tokenData.access_token);
+            const tokenData = await this.twitterService.getAccessToken(code as string, verifier);
+            const userInfo = await this.twitterService.getUserInfo(tokenData.access_token);
 
-                return res.json({
-                    success: true,
-                    message: 'Twitter authentication successful',
-                    data: {
-                        id: userInfo.data.id,
-                        username: userInfo.data.username,
-                        accessToken: tokenData.access_token.substring(0, 10) + '...'
-                    }
-                });
-            } catch (error) {
-                console.error('Twitter API Error:', error);
-                return res.status(500).json({
-                    success: false,
-                    message: 'Failed to authenticate with Twitter API',
-                    error: error instanceof Error ? error.message : 'Unknown error'
-                });
-            }
+            // Store the Twitter connection
+            await this.userCrud.connectTwitter(userId, {
+                twitterId: userInfo.data.id,
+                username: userInfo.data.username,
+                accessToken: tokenData.access_token,
+                connectedAt: new Date()
+            });
+
+            return res.json({
+                success: true,
+                message: 'Twitter connected successfully',
+                data: {
+                    id: userInfo.data.id,
+                    username: userInfo.data.username,
+                    accessToken: tokenData.access_token.substring(0, 10) + '...'
+                }
+            });
         } catch (error) {
             console.error('Twitter Callback Error:', error);
             return res.status(500).json({

@@ -37,13 +37,14 @@ export class TwitterService {
     console.log('Client ID:', this.clientId.substring(0, 10) + '...');
   }
 
-  async getAuthUrl(): Promise<string> {
+  async getAuthUrl(userId: string): Promise<string> {
     const scope = 'tweet.read users.read offline.access';
     const codeVerifier = this.generateCodeVerifier();
     const codeChallenge = await this.generateCodeChallenge(codeVerifier);
     
     const state = Buffer.from(JSON.stringify({
         verifier: codeVerifier,
+        userId: userId,
         timestamp: Date.now()
     })).toString('base64');
     
@@ -56,7 +57,11 @@ export class TwitterService {
     url.searchParams.append('code_challenge_method', 'S256');
     url.searchParams.append('code_challenge', codeChallenge);
 
-    console.log('Generated Twitter Auth URL:', url.toString());
+    console.log('Generated Twitter Auth URL:', {
+        url: url.toString(),
+        userId,
+        timestamp: new Date().toISOString()
+    });
     return url.toString();
   }
 

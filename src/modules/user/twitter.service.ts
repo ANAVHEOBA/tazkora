@@ -39,7 +39,11 @@ export class TwitterService {
 
   async getAuthUrl(): Promise<string> {
     const scope = 'tweet.read users.read offline.access';
-    const state = Math.random().toString(36).substring(7);
+    // Include userId and token in state
+    const state = Buffer.from(JSON.stringify({
+        verifier: Math.random().toString(36).substring(7),
+        timestamp: Date.now()
+    })).toString('base64');
     
     const url = new URL('https://twitter.com/i/oauth2/authorize');
     url.searchParams.append('response_type', 'code');
@@ -47,8 +51,8 @@ export class TwitterService {
     url.searchParams.append('redirect_uri', this.redirectUri);
     url.searchParams.append('scope', scope);
     url.searchParams.append('state', state);
-    url.searchParams.append('code_challenge_method', 'S256');
-    url.searchParams.append('code_challenge', state);
+    url.searchParams.append('code_challenge_method', 'plain');
+    url.searchParams.append('code_challenge', 'challenge');
 
     // Debug log
     console.log('Generated Twitter Auth URL:', url.toString());

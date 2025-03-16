@@ -435,26 +435,27 @@ export class UserController {
             return res.json({ url: authUrl });
         } catch (error) {
             console.error('Twitter Connect Error:', error);
-            return res.status(500).json({ success: false, message: 'Failed to initiate Twitter connection' });
+            return res.status(500).json({ 
+                success: false, 
+                message: 'Failed to initiate Twitter connection' 
+            });
         }
     }
 
-    async twitterCallback(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+    async twitterCallback(req: Request, res: Response): Promise<Response> {
         try {
             const { code, state } = req.query;
-            const userId = req.user?.id;
-
+            
             console.log('Twitter Callback Request:', {
                 code,
                 state,
-                userId,
                 headers: req.headers
             });
 
-            if (!code || !userId) {
+            if (!code || !state) {
                 return res.status(400).json({ 
                     success: false, 
-                    message: 'Invalid request: Missing code or user ID' 
+                    message: 'Invalid request: Missing code or state' 
                 });
             }
 
@@ -465,33 +466,29 @@ export class UserController {
                 const userInfo = await this.twitterService.getUserInfo(tokenData.access_token);
                 console.log('User Info Received:', userInfo);
 
-                await this.userCrud.connectTwitter(userId, {
-                    id: userInfo.data.id,
-                    username: userInfo.data.username,
-                    accessToken: tokenData.access_token
-                });
-
-                // Return JSON response instead of redirect
-                return res.json({ 
-                    success: true, 
-                    message: 'Twitter connected successfully',
+                // Return JSON response with the Twitter data
+                return res.json({
+                    success: true,
+                    message: 'Twitter authentication successful',
                     data: {
-                        username: userInfo.data.username
+                        id: userInfo.data.id,
+                        username: userInfo.data.username,
+                        accessToken: tokenData.access_token
                     }
                 });
             } catch (error) {
                 console.error('Twitter API Error:', error);
-                return res.status(500).json({ 
-                    success: false, 
+                return res.status(500).json({
+                    success: false,
                     message: 'Failed to authenticate with Twitter API',
                     error: error instanceof Error ? error.message : 'Unknown error'
                 });
             }
         } catch (error) {
             console.error('Twitter Callback Error:', error);
-            return res.status(500).json({ 
-                success: false, 
-                message: 'Failed to complete Twitter connection' 
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to complete Twitter connection'
             });
         }
     }
@@ -500,10 +497,16 @@ export class UserController {
         try {
             const userId = req.user?.id;
             await this.userCrud.disconnectTwitter(userId);
-            return res.json({ success: true, message: 'Twitter disconnected successfully' });
+            return res.json({ 
+                success: true, 
+                message: 'Twitter disconnected successfully' 
+            });
         } catch (error) {
             console.error('Twitter Disconnect Error:', error);
-            return res.status(500).json({ success: false, message: 'Failed to disconnect Twitter' });
+            return res.status(500).json({ 
+                success: false, 
+                message: 'Failed to disconnect Twitter' 
+            });
         }
     }
 

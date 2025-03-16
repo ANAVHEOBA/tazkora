@@ -31,7 +31,7 @@ router.patch('/me', userController.updateUserDetails.bind(userController));
 
 // Twitter routes 
 router.get('/twitter/connect', userMiddleware, userController.connectTwitter.bind(userController));
-router.get('/twitter/callback', userMiddleware, userController.twitterCallback.bind(userController));
+router.get('/twitter/callback', userController.twitterCallback.bind(userController));
 router.post('/twitter/disconnect', userMiddleware, userController.disconnectTwitter.bind(userController));
 
 // Discord routes

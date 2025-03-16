@@ -255,4 +255,29 @@ export class UserCrud {
             { new: true }
         );
     }
+
+    async finalizeTwitterConnection(
+        email: string, 
+        twitterData: { 
+            id: string; 
+            username: string; 
+            accessToken: string; 
+        }
+    ): Promise<IUser | null> {
+        return User.findOneAndUpdate(
+            { email },
+            {
+                $set: {
+                    twitterConnection: {
+                        twitterId: twitterData.id,
+                        username: twitterData.username,
+                        accessToken: twitterData.accessToken,
+                        connectedAt: new Date(),
+                        isConnected: true
+                    }
+                }
+            },
+            { new: true }
+        );
+    }
 }

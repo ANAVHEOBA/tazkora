@@ -12,11 +12,12 @@ router.post('/verify', userController.verifyAndLogin.bind(userController));
 // Public partner routes
 router.get('/partners', userController.viewPartners.bind(userController));
 
-// Twitter routes - move these above the userMiddleware
+// OAuth callbacks - public routes
 router.get('/twitter/callback', userController.twitterCallback.bind(userController));
+router.get('/discord/callback', userController.discordCallback.bind(userController));
 
 // Protected routes (user required)
-router.use(userMiddleware); // Apply user middleware to all routes below this line
+router.use(userMiddleware);
 
 router.get('/partners/:partnerId', userController.viewPartnerDetails.bind(userController));
 router.get('/me/tasks', userController.getMyTasks.bind(userController));
@@ -36,10 +37,9 @@ router.patch('/me', userController.updateUserDetails.bind(userController));
 router.get('/twitter/connect', userController.connectTwitter.bind(userController));
 router.post('/twitter/disconnect', userController.disconnectTwitter.bind(userController));
 
-// Discord routes
-router.get('/discord/connect', userMiddleware, userController.connectDiscord.bind(userController));
-router.get('/discord/callback', userMiddleware, userController.discordCallback.bind(userController));
-router.post('/discord/disconnect', userMiddleware, userController.disconnectDiscord.bind(userController));
+// Discord routes that require authentication
+router.get('/discord/connect', userController.connectDiscord.bind(userController));
+router.post('/discord/disconnect', userController.disconnectDiscord.bind(userController));
 
 // Telegram routes
 router.post('/telegram/connect', userMiddleware, userController.connectTelegram.bind(userController));

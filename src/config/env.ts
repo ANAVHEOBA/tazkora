@@ -35,7 +35,7 @@ export const env = {
     RETURN_JSON_RESPONSE: true,
     DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID || '',
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET || '',
-    DISCORD_REDIRECT_URI: 'https://tazkora-production.up.railway.app/api/auth/discord/callback',
+    DISCORD_REDIRECT_URI: 'https://tazkora-3.onrender.com/api/users/discord/callback',
     TELEGRAM_APP_ID: process.env.TELEGRAM_APP_ID || '',
     TELEGRAM_APP_HASH: process.env.TELEGRAM_APP_HASH || '',
     TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || '',

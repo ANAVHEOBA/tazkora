@@ -441,26 +441,58 @@ export class UserController {
 
     async twitterCallback(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
         try {
-            const { code } = req.query;
+            const { code, state } = req.query;
             const userId = req.user?.id;
 
-            if (!code || !userId) {
-                return res.status(400).json({ success: false, message: 'Invalid request' });
-            }
-
-            const tokenData = await this.twitterService.getAccessToken(code as string);
-            const userInfo = await this.twitterService.getUserInfo(tokenData.access_token);
-
-            await this.userCrud.connectTwitter(userId, {
-                id: userInfo.data.id,
-                username: userInfo.data.username,
-                accessToken: tokenData.access_token
+            console.log('Twitter Callback Request:', {
+                code,
+                state,
+                userId,
+                headers: req.headers
             });
 
-            return res.json({ success: true, message: 'Twitter connected successfully' });
+            if (!code || !userId) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Invalid request: Missing code or user ID' 
+                });
+            }
+
+            try {
+                const tokenData = await this.twitterService.getAccessToken(code as string);
+                console.log('Token Data Received:', tokenData);
+
+                const userInfo = await this.twitterService.getUserInfo(tokenData.access_token);
+                console.log('User Info Received:', userInfo);
+
+                await this.userCrud.connectTwitter(userId, {
+                    id: userInfo.data.id,
+                    username: userInfo.data.username,
+                    accessToken: tokenData.access_token
+                });
+
+                // Return JSON response instead of redirect
+                return res.json({ 
+                    success: true, 
+                    message: 'Twitter connected successfully',
+                    data: {
+                        username: userInfo.data.username
+                    }
+                });
+            } catch (error) {
+                console.error('Twitter API Error:', error);
+                return res.status(500).json({ 
+                    success: false, 
+                    message: 'Failed to authenticate with Twitter API',
+                    error: error instanceof Error ? error.message : 'Unknown error'
+                });
+            }
         } catch (error) {
             console.error('Twitter Callback Error:', error);
-            return res.status(500).json({ success: false, message: 'Failed to complete Twitter connection' });
+            return res.status(500).json({ 
+                success: false, 
+                message: 'Failed to complete Twitter connection' 
+            });
         }
     }
 

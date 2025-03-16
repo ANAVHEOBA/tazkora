@@ -155,21 +155,35 @@ export class UserCrud {
     }
 
     async connectTwitter(userId: string, twitterData: any): Promise<IUser | null> {
-        return User.findByIdAndUpdate(
-            userId,
-            {
-                $set: {
-                    twitterConnection: {
-                        twitterId: twitterData.id,
-                        username: twitterData.username,
-                        accessToken: twitterData.accessToken,
-                        connectedAt: new Date(),
-                        isConnected: true
+        try {
+            const result = await User.findByIdAndUpdate(
+                userId,
+                {
+                    $set: {
+                        twitterConnection: {
+                            twitterId: twitterData.id,
+                            username: twitterData.username,
+                            accessToken: twitterData.accessToken,
+                            connectedAt: new Date(),
+                            isConnected: true
+                        }
                     }
+                },
+                { 
+                    new: true,
+                    runValidators: true
                 }
-            },
-            { new: true }
-        );
+            );
+
+            if (!result) {
+                throw new Error('User not found');
+            }
+
+            return result;
+        } catch (error) {
+            console.error('Connect Twitter Error:', error);
+            throw error;
+        }
     }
 
     async disconnectTwitter(userId: string): Promise<IUser | null> {

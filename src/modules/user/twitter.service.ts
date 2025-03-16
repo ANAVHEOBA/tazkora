@@ -30,11 +30,30 @@ export class TwitterService {
     this.clientId = env.TWITTER_CLIENT_ID;
     this.clientSecret = env.TWITTER_CLIENT_SECRET;
     this.redirectUri = env.TWITTER_CALLBACK_URL;
+
+    // Log configuration (remove in production)
+    console.log('Twitter Service Configuration:');
+    console.log('Redirect URI:', this.redirectUri);
+    console.log('Client ID:', this.clientId.substring(0, 10) + '...');
   }
 
   async getAuthUrl(): Promise<string> {
-    const scope = 'tweet.read users.read';
-    return `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${this.clientId}&redirect_uri=${this.redirectUri}&scope=${scope}&state=state`;
+    const scope = 'tweet.read users.read offline.access';
+    const state = Math.random().toString(36).substring(7);
+    
+    const url = new URL('https://twitter.com/i/oauth2/authorize');
+    url.searchParams.append('response_type', 'code');
+    url.searchParams.append('client_id', this.clientId);
+    url.searchParams.append('redirect_uri', this.redirectUri);
+    url.searchParams.append('scope', scope);
+    url.searchParams.append('state', state);
+    url.searchParams.append('code_challenge_method', 'S256');
+    url.searchParams.append('code_challenge', state);
+
+    // Debug log
+    console.log('Generated Twitter Auth URL:', url.toString());
+
+    return url.toString();
   }
 
   async getAccessToken(code: string): Promise<TwitterTokenResponse> {
@@ -43,22 +62,29 @@ export class TwitterService {
     params.append('grant_type', 'authorization_code');
     params.append('redirect_uri', this.redirectUri);
     params.append('client_id', this.clientId);
+    params.append('code_verifier', 'challenge');
 
     try {
       const response = await axios.post<TwitterTokenResponse>(
         'https://api.twitter.com/2/oauth2/token',
         params,
         {
-          auth: {
-            username: this.clientId,
-            password: this.clientSecret
+          headers: {
+            'Authorization': `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`,
+            'Content-Type': 'application/x-www-form-urlencoded'
           }
         }
       );
 
       return response.data;
     } catch (error) {
-      console.error('Twitter getAccessToken error:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Twitter getAccessToken error:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          headers: error.response?.headers
+        });
+      }
       throw new Error('Failed to get Twitter access token');
     }
   }
@@ -69,7 +95,8 @@ export class TwitterService {
         'https://api.twitter.com/2/users/me',
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
           }
         }
       );

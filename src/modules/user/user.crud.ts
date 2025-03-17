@@ -1,6 +1,7 @@
 import { User, IUser } from './user.model';
 import mongoose from 'mongoose';
 import { CreateTaskInput, UserTask, UpdateUserInput } from './user.types';
+import { WalletCrud } from '../wallet/wallet.crud';
 
 interface CompletedTask {
     partnerId: mongoose.Types.ObjectId;
@@ -10,6 +11,12 @@ interface CompletedTask {
 }
 
 export class UserCrud {
+    private walletCrud: WalletCrud;
+
+    constructor() {
+        this.walletCrud = new WalletCrud();
+    }
+
     async findByEmail(email: string): Promise<IUser | null> {
         return await User.findOne({ email });
     }
@@ -20,6 +27,13 @@ export class UserCrud {
             { email },
             { upsert: true, new: true }
         );
+
+        // Create wallet if it doesn't exist
+        const wallet = await this.walletCrud.getWallet(user._id.toString());
+        if (!wallet) {
+            await this.walletCrud.createWallet(user._id.toString());
+        }
+
         return user;
     }
 

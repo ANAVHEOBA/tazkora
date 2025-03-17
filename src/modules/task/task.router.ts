@@ -36,4 +36,9 @@ router.post('/admin/pools/:taskId/submissions/:userId/approve',
   taskController.approveSubmission.bind(taskController)
 );
 
+router.get('/admin/pools/:taskId/submissions', 
+  adminMiddleware, 
+  taskController.getTaskSubmissions.bind(taskController)
+);
+
 export default router; 

@@ -122,5 +122,56 @@ export class TaskPoolCrud {
       .populate('submissions.userId', 'email');
   }
 
+  async getTaskSubmissions(
+    taskId: string, 
+    status?: 'PENDING' | 'APPROVED' | 'REJECTED',
+    page: number = 1,
+    limit: number = 10
+  ) {
+    const task = await TaskPool.findById(taskId);
+    if (!task) throw new Error('Task not found');
+
+    // Filter submissions based on status if provided
+    let submissions = task.submissions;
+    if (status) {
+      submissions = submissions.filter(s => s.status === status);
+    }
+
+    // Calculate pagination
+    const total = submissions.length;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedSubmissions = submissions.slice(startIndex, endIndex);
+
+    // Populate user details for the paginated submissions
+    const populatedTask = await TaskPool.findById(taskId)
+      .populate({
+        path: 'submissions.userId',
+        select: 'email name', // Add any other user fields you want to include
+        match: { 
+          _id: { 
+            $in: paginatedSubmissions.map(s => s.userId) 
+          } 
+        }
+      });
+
+    return {
+      submissions: populatedTask?.submissions || [],
+      task: {
+        title: task.title,
+        description: task.description,
+        totalSpots: task.totalSpots,
+        completedCount: task.completedCount,
+        status: task.status
+      },
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
+    };
+  }
+
   // Add other necessary methods...
 } 

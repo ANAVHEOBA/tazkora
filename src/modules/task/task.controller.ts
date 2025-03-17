@@ -219,4 +219,33 @@ export class TaskController {
       });
     }
   }
+
+  // Get all submissions for a task (admin only)
+  async getTaskSubmissions(req: AuthenticatedAdminRequest, res: Response) {
+    try {
+      const { taskId } = req.params;
+      const status = req.query.status as 'PENDING' | 'APPROVED' | 'REJECTED';
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const submissions = await this.taskPoolCrud.getTaskSubmissions(
+        taskId,
+        status,
+        page,
+        limit
+      );
+
+      return res.json({
+        success: true,
+        data: submissions
+      });
+    } catch (error) {
+      console.error('Get Task Submissions Error:', error);
+      return res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to fetch task submissions'
+      });
+    }
+  }
 } 
+

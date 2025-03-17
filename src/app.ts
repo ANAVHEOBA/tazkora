@@ -4,6 +4,7 @@ import userRouter from './modules/user/user.router';
 import adminRouter from './modules/admin/admin.router';
 import partnerRouter from './modules/partner/partner.router';
 import walletRouter from './modules/wallet/wallet.router';
+import taskRouter from './modules/task/task.router';
 
 
 const app = express();
@@ -47,6 +48,7 @@ app.use('/api/users', userRouter);
 app.use('/api/admin', adminRouter);  // This will now handle admin/partners routes
 app.use('/api/partners', partnerRouter); // This will handle both public and admin routes
 app.use('/api/wallet', walletRouter);
+app.use('/api/tasks', taskRouter);
 app.use('/uploads', express.static('uploads'));
 
 // Notifications

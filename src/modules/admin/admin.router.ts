@@ -22,6 +22,9 @@ router.get('/partners/:id', adminMiddleware, partnerController.getById.bind(part
 router.put('/partners/:id', adminMiddleware, partnerController.update.bind(partnerController));
 router.delete('/partners/:id', adminMiddleware, partnerController.delete.bind(partnerController));
 
+// Add this with other admin routes
+router.get('/users', adminMiddleware, adminController.getAllUsers.bind(adminController));
+
 
 
 export default router;

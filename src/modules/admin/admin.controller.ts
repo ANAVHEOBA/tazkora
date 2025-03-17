@@ -3,6 +3,32 @@ import { AdminCrud } from './admin.crud';
 import { AdminLoginSchema } from './admin.schema';
 import { generateToken } from '../../middleware/auth.utils';
 import { AuthenticatedAdminRequest } from '../../middleware/admin.middleware';
+import { User } from '../user/user.model';
+import mongoose from 'mongoose';
+
+interface UserLeanDoc {
+    _id: mongoose.Types.ObjectId;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    isEmailVerified: boolean;
+    totalPoints: number;
+    createdAt: Date;
+    updatedAt: Date;
+    lastLoginAt?: Date;
+    twitterConnection?: {
+        isConnected: boolean;
+        username: string;
+    };
+    discordConnection?: {
+        isConnected: boolean;
+        username: string;
+    };
+    telegramConnection?: {
+        isConnected: boolean;
+        username: string;
+    };
+}
 
 export class AdminController {
     private adminCrud: AdminCrud;
@@ -100,6 +126,82 @@ export class AdminController {
             return res.status(500).json({
                 success: false,
                 message: 'Failed to create admin account'
+            });
+        }
+    }
+
+    async getAllUsers(req: AuthenticatedAdminRequest, res: Response): Promise<Response> {
+        try {
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+            const search = req.query.search as string;
+
+            const query: any = {};
+            if (search) {
+                query.$or = [
+                    { email: { $regex: search, $options: 'i' } },
+                    { firstName: { $regex: search, $options: 'i' } },
+                    { lastName: { $regex: search, $options: 'i' } }
+                ];
+            }
+
+            const users = await User.find(query)
+                .select({
+                    email: 1,
+                    firstName: 1,
+                    lastName: 1,
+                    isEmailVerified: 1,
+                    totalPoints: 1,
+                    createdAt: 1,
+                    lastLoginAt: 1,
+                    twitterConnection: { isConnected: 1, username: 1 },
+                    discordConnection: { isConnected: 1, username: 1 },
+                    telegramConnection: { isConnected: 1, username: 1 }
+                })
+                .lean<UserLeanDoc[]>()
+                .skip((page - 1) * limit)
+                .limit(limit)
+                .sort({ createdAt: -1 });
+
+            const total = await User.countDocuments(query);
+
+            return res.json({
+                success: true,
+                data: {
+                    users: users.map(user => ({
+                        id: user._id.toString(),
+                        email: user.email,
+                        firstName: user.firstName || null,
+                        lastName: user.lastName || null,
+                        isEmailVerified: user.isEmailVerified || false,
+                        totalPoints: user.totalPoints || 0,
+                        createdAt: user.createdAt,
+                        lastLoginAt: user.lastLoginAt || null,
+                        connections: {
+                            twitter: user.twitterConnection?.isConnected ? {
+                                username: user.twitterConnection.username
+                            } : null,
+                            discord: user.discordConnection?.isConnected ? {
+                                username: user.discordConnection.username
+                            } : null,
+                            telegram: user.telegramConnection?.isConnected ? {
+                                username: user.telegramConnection.username
+                            } : null
+                        }
+                    })),
+                    pagination: {
+                        total,
+                        page,
+                        limit,
+                        pages: Math.ceil(total / limit)
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Get All Users Error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to fetch users'
             });
         }
     }

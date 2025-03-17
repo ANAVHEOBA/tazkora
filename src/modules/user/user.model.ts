@@ -60,6 +60,8 @@ export interface IUser extends Document {
     twitterConnection?: ITwitterConnection;
     discordConnection?: IDiscordConnection;
     telegramConnection?: ITelegramConnection;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const userTaskSchema = new mongoose.Schema({

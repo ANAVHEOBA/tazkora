@@ -121,4 +121,27 @@ export class WalletCrud {
   private generateReference(): string {
     return `TRX_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
+
+  // Add amount to wallet
+  async addAmount(userId: string, amount: number): Promise<IWallet | null> {
+    return Wallet.findOneAndUpdate(
+      { userId: new mongoose.Types.ObjectId(userId) },
+      { $inc: { balance: amount } },
+      { new: true }
+    );
+  }
+
+  // Deduct amount from wallet
+  async deductAmount(userId: string, amount: number): Promise<IWallet | null> {
+    const wallet = await this.getWallet(userId);
+    if (!wallet || wallet.balance < amount) {
+      throw new Error('Insufficient balance');
+    }
+
+    return Wallet.findOneAndUpdate(
+      { userId: new mongoose.Types.ObjectId(userId) },
+      { $inc: { balance: -amount } },
+      { new: true }
+    );
+  }
 }

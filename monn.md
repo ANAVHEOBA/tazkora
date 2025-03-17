@@ -91,3 +91,9 @@ a@a:~/tazkora$ curl -X POST https://tazkora-3.onrender.com/api/wallet/withdraw \
     "accountName": "Test Account"
 }'
 {"success":true,"data":{"reference":"zkg3gygug5cq-6hnllu1","status":"pending"}}a@a:~/tazkora$ 
+
+
+
+a@a:~/tazkora$ curl -X GET https://tazkora-3.onrender.com/api/wallet/withdraw/verify/zkg3gygug5cq-6hnllu1 \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q3ZTYwN2UxOTBhYzFjYTdkYzU3MGQiLCJlbWFpbCI6Implc3NpY2FhbmF2aGVvYmFAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NDIyMDI0MjEsImV4cCI6MTc0MjI4ODgyMX0.2qXHiPh1nvbGcd_vleSgRKWaZMhWMgYA7HfdtNrBwwY"
+{"success":true,"data":{"status":"pending","reference":"zkg3gygug5cq-6hnllu1","amount":500,"recipient":{"active":true,"createdAt":"2025-03-17T11:46:25.000Z","currency":"NGN","description":null,"domain":"test","email":null,"id":99767124,"integration":1081185,"metadata":null,"name":"Test Account","recipient_code":"RCP_62jr7m57rspxabu","type":"nuban","updatedAt":"2025-03-17T11:46:25.000Z","is_deleted":false,"isDeleted":false,"details":{"authorization_code":null,"account_number":"0000000000","account_name":"Test","bank_code":"057","bank_name":"Zenith Bank"}}}}a@a:~/tazkora$ 

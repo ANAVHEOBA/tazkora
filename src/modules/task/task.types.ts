@@ -13,6 +13,9 @@ export interface TaskPool {
   submissions: TaskSubmission[];
   createdAt: Date;
   updatedAt: Date;
+  image: string;
+  taskLink: string;
+  taskType: 'TWITTER' | 'DISCORD' | 'TELEGRAM' | 'OTHER';
 }
 
 export interface TaskSubmission {
@@ -21,4 +24,14 @@ export interface TaskSubmission {
   submissionDate: Date;
   approvalDate?: Date;
   proof: string;
+}
+
+export interface CreateTaskPoolInput {
+  title: string;
+  description: string;
+  totalSpots: number;
+  rewardPerUser: number;
+  image: string;
+  taskLink: string;
+  taskType: 'TWITTER' | 'DISCORD' | 'TELEGRAM' | 'OTHER';
 } 

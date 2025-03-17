@@ -1,5 +1,6 @@
 import { TaskPool } from './task.model';
 import { WalletCrud } from '../wallet/wallet.crud';
+import { CreateTaskPoolInput } from './task.types';
 
 export class TaskPoolCrud {
   private walletCrud: WalletCrud;
@@ -8,11 +9,7 @@ export class TaskPoolCrud {
     this.walletCrud = new WalletCrud();
   }
 
-  async createTaskPool(data: {
-    title: string;
-    description: string;
-    totalSpots: number;
-    rewardPerUser: number;
+  async createTaskPool(data: CreateTaskPoolInput & {
     createdBy: {
       userId: string;
       role: 'admin' | 'user';

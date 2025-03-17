@@ -3,6 +3,17 @@ import { TaskPoolCrud } from './task.crud';
 import { AuthenticatedUserRequest } from '../../middleware/user.middleware';
 import { AuthenticatedAdminRequest } from '../../middleware/admin.middleware';
 
+// Extend the request types to include the file property
+interface AuthenticatedUserRequestWithFile extends AuthenticatedUserRequest {
+  file?: Express.Multer.File;
+}
+
+interface AuthenticatedAdminRequestWithFile extends AuthenticatedAdminRequest {
+  file?: Express.Multer.File;
+}
+
+type AuthenticatedRequestWithFile = AuthenticatedUserRequestWithFile | AuthenticatedAdminRequestWithFile;
+
 export class TaskController {
   private taskPoolCrud: TaskPoolCrud;
 
@@ -11,11 +22,33 @@ export class TaskController {
   }
 
   // Create task pool (both admin and users)
-  async createTaskPool(req: AuthenticatedUserRequest | AuthenticatedAdminRequest, res: Response) {
+  async createTaskPool(req: AuthenticatedRequestWithFile, res: Response) {
     try {
-      const { title, description, totalSpots, rewardPerUser } = req.body;
-      
-      // Fix type checking for admin/user
+      const { 
+        title, 
+        description, 
+        totalSpots, 
+        rewardPerUser,
+        taskLink,
+        taskType 
+      } = req.body;
+
+      // Get the uploaded image path
+      const image = req.file?.path;
+      if (!image) {
+        return res.status(400).json({
+          success: false,
+          message: 'Task image is required'
+        });
+      }
+
+      if (!taskLink || !taskType) {
+        return res.status(400).json({
+          success: false,
+          message: 'Task link and task type are required'
+        });
+      }
+
       let userId: string;
       let role: 'admin' | 'user';
 
@@ -34,6 +67,9 @@ export class TaskController {
         description,
         totalSpots,
         rewardPerUser,
+        image,
+        taskLink,
+        taskType,
         createdBy: {
           userId,
           role
@@ -54,11 +90,19 @@ export class TaskController {
   }
 
   // Submit task (users only)
-  async submitTask(req: AuthenticatedUserRequest, res: Response) {
+  async submitTask(req: AuthenticatedUserRequestWithFile, res: Response) {
     try {
       const { taskId } = req.params;
-      const { proof } = req.body;
       const userId = req.user.id;
+      
+      // Get the uploaded proof image path
+      const proof = req.file?.path;
+      if (!proof) {
+        return res.status(400).json({
+          success: false,
+          message: 'Proof image is required'
+        });
+      }
 
       const submission = await this.taskPoolCrud.submitTask(taskId, userId, proof);
 

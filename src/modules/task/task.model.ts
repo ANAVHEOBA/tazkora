@@ -29,11 +29,19 @@ const taskPoolSchema = new Schema({
     role: { type: String, enum: ['admin', 'user'], required: true }
   },
   completedCount: { type: Number, default: 0 },
-  submissions: [taskSubmissionSchema]
+  submissions: [taskSubmissionSchema],
+  image: { type: String, required: true },
+  taskLink: { type: String, required: true },
+  taskType: { 
+    type: String, 
+    enum: ['TWITTER', 'DISCORD', 'TELEGRAM', 'OTHER'],
+    required: true 
+  }
 }, { timestamps: true });
 
 // Add index for efficient queries
 taskPoolSchema.index({ status: 1, completedCount: 1 });
 taskPoolSchema.index({ 'submissions.userId': 1 });
+taskPoolSchema.index({ taskType: 1 });
 
 export const TaskPool = mongoose.model<ITaskPool & Document>('TaskPool', taskPoolSchema); 

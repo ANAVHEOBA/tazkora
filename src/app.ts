@@ -47,6 +47,7 @@ app.use('/api/users', userRouter);
 app.use('/api/admin', adminRouter);  // This will now handle admin/partners routes
 app.use('/api/partners', partnerRouter); // This will handle both public and admin routes
 app.use('/api/wallet', walletRouter);
+app.use('/uploads', express.static('uploads'));
 
 // Notifications
 

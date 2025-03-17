@@ -12,6 +12,7 @@ export interface IPartner extends mongoose.Document {
     status: 'active' | 'inactive';
     createdAt: Date;
     updatedAt: Date;
+    taskLink: string;
 }
 
 const partnerSchema = new mongoose.Schema({
@@ -48,6 +49,14 @@ const partnerSchema = new mongoose.Schema({
         type: String,
         enum: ['active', 'inactive'],
         default: 'active'
+    },
+    taskLink: {
+        type: String,
+        required: true,
+        validate: {
+            validator: (v: string) => /^https?:\/\/.+/.test(v),
+            message: 'Task link must be a valid URL'
+        }
     }
 }, {
     timestamps: true

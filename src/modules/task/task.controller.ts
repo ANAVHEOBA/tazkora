@@ -247,5 +247,33 @@ export class TaskController {
       });
     }
   }
+
+  // Get all tasks with creator details (admin only)
+  async getAllTasksForAdmin(req: AuthenticatedAdminRequest, res: Response) {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const status = req.query.status as 'OPEN' | 'CLOSED';
+      const creatorRole = req.query.creatorRole as 'admin' | 'user';
+
+      const tasks = await this.taskPoolCrud.getAllTasksForAdmin(
+        page,
+        limit,
+        status,
+        creatorRole
+      );
+
+      return res.json({
+        success: true,
+        data: tasks
+      });
+    } catch (error) {
+      console.error('Get All Tasks Admin Error:', error);
+      return res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to fetch tasks'
+      });
+    }
+  }
 } 
 

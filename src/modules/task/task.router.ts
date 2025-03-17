@@ -41,4 +41,10 @@ router.get('/admin/pools/:taskId/submissions',
   taskController.getTaskSubmissions.bind(taskController)
 );
 
+// Add this new admin route
+router.get('/admin/pools/all', 
+  adminMiddleware, 
+  taskController.getAllTasksForAdmin.bind(taskController)
+);
+
 export default router; 

@@ -22,6 +22,21 @@ a@a:~/tazkora$ curl -X POST "https://tazkora-3.onrender.com/api/tasks/admin/pool
 
 
 
+a@a:~/tazkora$ curl -X GET "https://tazkora-3.onrender.com/api/tasks/admin/pools/67d82859564666ad26d3ec5a/submissions" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q3NjBkMGU4NGE5ZmNhNzhhMDgyODkiLCJlbWFpbCI6ImFkbWluQHRhemtvcmEuY29tIiwibmFtZSI6IkFkbWluIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzQyMTY5NDI3LCJleHAiOjE3NDIyNTU4Mjd9.TQuh5qvx1-sLwQW8oJrUvNdAhbMIhXUwEWm5uSh8Rwk"
+{"success":true,"data":{"submissions":[{"userId":{"_id":"67d7e607e190ac1ca7dc570d","email":"jessicaanavheoba@gmail.com"},"status":"APPROVED","proof":"uploads/tasks/acb2612d-cf99-4418-8fec-046ace23a762.png","_id":"67d82930564666ad26d3ec60","submissionDate":"2025-03-17T13:52:48.192Z","approvalDate":"2025-03-17T13:54:45.274Z"}],"task":{"title":"Follow Tazkora on Twitter","description":"1. Follow @tazkora on Twitter\n2. Like and Retweet our pinned post","totalSpots":10,"completedCount":1,"status":"OPEN"},"pagination":{"total":1,"page":1,"limit":10,"pages":1}}}a@a:~/tazkora$ 
 
 
 
+
+
+a@a:~/tazkora$ curl -X GET "https://tazkora-3.onrender.com/api/tasks/admin/pools/67d82859564666ad26d3ec5a/submissions?status=PENDING" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q3NjBkMGU4NGE5ZmNhNzhhMDgyODkiLCJlbWFpbCI6ImFkbWluQHRhemtvcmEuY29tIiwibmFtZSI6IkFkbWluIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzQyMTY5NDI3LCJleHAiOjE3NDIyNTU4Mjd9.TQuh5qvx1-sLwQW8oJrUvNdAhbMIhXUwEWm5uSh8Rwk"
+{"success":true,"data":{"submissions":[{"userId":null,"status":"APPROVED","proof":"uploads/tasks/acb2612d-cf99-4418-8fec-046ace23a762.png","_id":"67d82930564666ad26d3ec60","submissionDate":"2025-03-17T13:52:48.192Z","approvalDate":"2025-03-17T13:54:45.274Z"}],"task":{"title":"Follow Tazkora on Twitter","description":"1. Follow @tazkora on Twitter\n2. Like and Retweet our pinned post","totalSpots":10,"completedCount":1,"status":"OPEN"},"pagination":{"total":0,"page":1,"limit":10,"pages":0}}}a@a:~/tazkora$ 
+
+
+
+
+a@a:~/tazkora$ curl -X GET "https://tazkora-3.onrender.com/api/tasks/admin/pools/67d82859564666ad26d3ec5a/submissions?status=PENDING&page=1&limit=5" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q3NjBkMGU4NGE5ZmNhNzhhMDgyODkiLCJlbWFpbCI6ImFkbWluQHRhemtvcmEuY29tIiwibmFtZSI6IkFkbWluIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzQyMTY5NDI3LCJleHAiOjE3NDIyNTU4Mjd9.TQuh5qvx1-sLwQW8oJrUvNdAhbMIhXUwEWm5uSh8Rwk"
+{"success":true,"data":{"submissions":[{"userId":null,"status":"APPROVED","proof":"uploads/tasks/acb2612d-cf99-4418-8fec-046ace23a762.png","_id":"67d82930564666ad26d3ec60","submissionDate":"2025-03-17T13:52:48.192Z","approvalDate":"2025-03-17T13:54:45.274Z"}],"task":{"title":"Follow Tazkora on Twitter","description":"1. Follow @tazkora on Twitter\n2. Like and Retweet our pinned post","totalSpots":10,"completedCount":1,"status":"OPEN"},"pagination":{"total":0,"page":1,"limit":5,"pages":0}}}a@a:~/tazkora$ 

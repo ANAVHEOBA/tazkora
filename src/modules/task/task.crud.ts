@@ -173,5 +173,55 @@ export class TaskPoolCrud {
     };
   }
 
+  async getAllTasksForAdmin(
+    page: number,
+    limit: number,
+    status?: 'OPEN' | 'CLOSED',
+    creatorRole?: 'admin' | 'user'
+  ) {
+    // Build query based on filters
+    const query: any = {};
+    if (status) query.status = status;
+    if (creatorRole) query['createdBy.role'] = creatorRole;
+
+    const [tasks, total] = await Promise.all([
+      TaskPool.find(query)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .populate([
+          {
+            path: 'createdBy.userId',
+            select: 'email name role',
+            model: 'User'
+          },
+          {
+            path: 'submissions.userId',
+            select: 'email name',
+            model: 'User'
+          }
+        ]),
+      TaskPool.countDocuments(query)
+    ]);
+
+    return {
+      tasks: tasks.map(task => ({
+        ...task.toObject(),
+        submissionStats: {
+          total: task.submissions.length,
+          pending: task.submissions.filter(s => s.status === 'PENDING').length,
+          approved: task.submissions.filter(s => s.status === 'APPROVED').length,
+          rejected: task.submissions.filter(s => s.status === 'REJECTED').length
+        }
+      })),
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
+    };
+  }
+
   // Add other necessary methods...
 } 

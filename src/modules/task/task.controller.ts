@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { TaskPoolCrud } from './task.crud';
 import { AuthenticatedUserRequest } from '../../middleware/user.middleware';
 import { AuthenticatedAdminRequest } from '../../middleware/admin.middleware';
+import { saveBase64Image } from '../../utils/upload.utils';
 
 // Extend the request types to include the file property
 interface AuthenticatedUserRequestWithFile extends AuthenticatedUserRequest {
@@ -30,15 +31,32 @@ export class TaskController {
         totalSpots, 
         rewardPerUser,
         taskLink,
-        taskType 
+        taskType,
+        imageBase64
       } = req.body;
 
-      // Get the uploaded image path
-      const image = req.file?.path;
+      // Get the image path either from file upload or base64
+      let image: string | undefined;
+      
+      if (req.file) {
+        // If file was uploaded using multer
+        image = req.file.path;
+      } else if (imageBase64) {
+        // If image was sent as base64
+        try {
+          image = saveBase64Image(imageBase64);
+        } catch (error) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid image data'
+          });
+        }
+      }
+
       if (!image) {
         return res.status(400).json({
           success: false,
-          message: 'Task image is required'
+          message: 'Task image is required (either as file upload or base64)'
         });
       }
 
@@ -93,14 +111,29 @@ export class TaskController {
   async submitTask(req: AuthenticatedUserRequestWithFile, res: Response) {
     try {
       const { taskId } = req.params;
+      const { proofBase64 } = req.body;
       const userId = req.user.id;
       
-      // Get the uploaded proof image path
-      const proof = req.file?.path;
+      // Get the proof image path either from file upload or base64
+      let proof: string | undefined;
+      
+      if (req.file) {
+        proof = req.file.path;
+      } else if (proofBase64) {
+        try {
+          proof = saveBase64Image(proofBase64);
+        } catch (error) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid proof image data'
+          });
+        }
+      }
+
       if (!proof) {
         return res.status(400).json({
           success: false,
-          message: 'Proof image is required'
+          message: 'Proof image is required (either as file upload or base64)'
         });
       }
 

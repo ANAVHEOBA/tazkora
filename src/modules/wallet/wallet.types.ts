@@ -35,3 +35,14 @@ export interface InitiateWithdrawalInput {
   accountNumber: string;
   accountName: string;
 }
+
+export interface TransferVerificationResponse {
+  status: string;
+  reference: string;
+  amount: number;
+  recipient: {
+    name: string;
+    account_number: string;
+    bank_code: string;
+  };
+}

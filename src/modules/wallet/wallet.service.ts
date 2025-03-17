@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { env } from '../../config/env';
-import { InitiateDepositInput, InitiateWithdrawalInput } from './wallet.types';
+import { InitiateDepositInput, InitiateWithdrawalInput, TransferVerificationResponse } from './wallet.types';
 
 interface PaystackResponse<T> {
   status: boolean;
@@ -105,5 +105,9 @@ export class PaystackService {
 
   async getBanks() {
     return this.request<BankResponse[]>('GET', '/bank');
+  }
+
+  async verifyTransfer(reference: string) {
+    return this.request<TransferVerificationResponse>('GET', `/transfer/verify/${reference}`);
   }
 }

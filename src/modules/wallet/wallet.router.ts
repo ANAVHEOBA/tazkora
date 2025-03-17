@@ -45,4 +45,11 @@ router.get(
   walletController.getTransactions.bind(walletController)
 );
 
+// Add new withdrawal verification route
+router.get(
+  '/withdraw/verify/:reference',
+  userMiddleware,
+  walletController.verifyWithdrawal.bind(walletController)
+);
+
 export default router;

@@ -217,4 +217,65 @@ export class WalletController {
       });
     }
   }
+
+  // Verify withdrawal
+  async verifyWithdrawal(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+    try {
+      const { reference } = req.params;
+      
+      if (!reference) {
+        return res.status(400).json({
+          success: false,
+          message: 'Transfer reference is required'
+        });
+      }
+
+      // Get the transaction from our database
+      const transaction = await this.walletCrud.getTransactionByReference(reference);
+      
+      if (!transaction) {
+        return res.status(404).json({
+          success: false,
+          message: 'Transaction not found'
+        });
+      }
+
+      // Verify with Paystack
+      const verification = await this.paystackService.verifyTransfer(reference);
+      
+      // Update transaction status based on Paystack response
+      let newStatus: TransactionStatus;
+      switch (verification.data.status.toLowerCase()) {
+        case 'success':
+          newStatus = TransactionStatus.COMPLETED;
+          break;
+        case 'failed':
+          newStatus = TransactionStatus.FAILED;
+          break;
+        default:
+          newStatus = TransactionStatus.PENDING;
+      }
+
+      // Update transaction status if it has changed
+      if (transaction.status !== newStatus) {
+        await this.walletCrud.updateTransactionStatus(reference, newStatus);
+      }
+
+      return res.json({
+        success: true,
+        data: {
+          status: newStatus,
+          reference: verification.data.reference,
+          amount: verification.data.amount / 100, // Convert from kobo to naira
+          recipient: verification.data.recipient
+        }
+      });
+    } catch (error) {
+      console.error('Verify Withdrawal Error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to verify withdrawal'
+      });
+    }
+  }
 }

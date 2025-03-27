@@ -87,15 +87,16 @@ export class WalletController {
   }
 
   // Verify transaction
-  async verifyTransaction(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+  async verifyTransaction(req: AuthenticatedUserRequest, res: Response): Promise<void> {
     try {
       const { reference } = req.query;
       
       if (!reference) {
-        return res.status(400).json({
+        res.send(this.paystackService.generatePaymentCallbackHTML({
           success: false,
-          message: 'Transaction reference is required'
-        });
+          message: 'Invalid transaction reference'
+        }));
+        return;
       }
 
       const verification = await this.paystackService.verifyTransaction(reference as string);
@@ -105,18 +106,26 @@ export class WalletController {
           reference as string,
           TransactionStatus.COMPLETED
         );
-      }
 
-      return res.json({
-        success: true,
-        data: verification.data
-      });
+        res.send(this.paystackService.generatePaymentCallbackHTML({
+          success: true,
+          message: 'Payment processed successfully!',
+          amount: verification.data.amount / 100, // Convert from kobo to naira
+          reference: verification.data.reference
+        }));
+      } else {
+        res.send(this.paystackService.generatePaymentCallbackHTML({
+          success: false,
+          message: 'Payment verification failed',
+          reference: verification.data.reference
+        }));
+      }
     } catch (error) {
       console.error('Verify Transaction Error:', error);
-      return res.status(500).json({
+      res.send(this.paystackService.generatePaymentCallbackHTML({
         success: false,
         message: 'Failed to verify transaction'
-      });
+      }));
     }
   }
 

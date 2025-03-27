@@ -451,50 +451,33 @@ export class UserController {
         }
     }
 
-    async twitterCallback(req: Request, res: Response): Promise<Response> {
+    async twitterCallback(req: Request, res: Response): Promise<void> {
         try {
-            const { code, state, error, error_description } = req.query;
+            const { code, state, error } = req.query;
             
-            console.log('Twitter Callback Request:', {
-                code,
-                state,
-                error,
-                error_description,
-                headers: req.headers,
-                url: req.url,
-                method: req.method
-            });
-
             if (error) {
-                return res.status(400).json({
+                res.send(this.twitterService.generateCallbackHTML({
                     success: false,
-                    message: 'Twitter authorization failed',
-                    error: error_description || error
-                });
+                    message: 'Twitter authorization failed'
+                }));
+                return;
             }
 
             if (!code || !state) {
-                return res.status(400).json({ 
-                    success: false, 
-                    message: 'Invalid request: Missing code or state' 
-                });
+                res.send(this.twitterService.generateCallbackHTML({
+                    success: false,
+                    message: 'Invalid request: Missing code or state'
+                }));
+                return;
             }
 
-            // Decode the state to get the verifier and user info
             const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString());
-            const verifier = stateData.verifier;
             const userId = stateData.userId;
-
-            console.log('State Data:', {
-                verifier: verifier.substring(0, 10) + '...',
-                userId,
-                timestamp: new Date(stateData.timestamp).toISOString()
-            });
+            const verifier = stateData.verifier;
 
             const tokenData = await this.twitterService.getAccessToken(code as string, verifier);
             const userInfo = await this.twitterService.getUserInfo(tokenData.access_token);
 
-            // Store the Twitter connection
             await this.userCrud.connectTwitter(userId, {
                 twitterId: userInfo.data.id,
                 username: userInfo.data.username,
@@ -502,21 +485,19 @@ export class UserController {
                 connectedAt: new Date()
             });
 
-            return res.json({
+            res.send(this.twitterService.generateCallbackHTML({
                 success: true,
-                message: 'Twitter connected successfully',
+                message: 'Twitter successfully connected!',
                 data: {
-                    id: userInfo.data.id,
-                    username: userInfo.data.username,
-                    accessToken: tokenData.access_token.substring(0, 10) + '...'
+                    username: userInfo.data.username
                 }
-            });
+            }));
         } catch (error) {
             console.error('Twitter Callback Error:', error);
-            return res.status(500).json({
+            res.send(this.twitterService.generateCallbackHTML({
                 success: false,
                 message: 'Failed to complete Twitter connection'
-            });
+            }));
         }
     }
 
@@ -558,38 +539,32 @@ export class UserController {
         }
     }
 
-    async discordCallback(req: Request, res: Response): Promise<Response> {
+    async discordCallback(req: Request, res: Response): Promise<void> {
         try {
-            const { code, state } = req.query;
+            const { code, state, error } = req.query;
             
-            console.log('Discord Callback Request:', {
-                code,
-                state,
-                headers: req.headers,
-                url: req.url,
-                method: req.method
-            });
-
-            if (!code || !state) {
-                return res.status(400).json({ 
-                    success: false, 
-                    message: 'Invalid request: Missing code or state' 
-                });
+            if (error) {
+                res.send(this.discordService.generateCallbackHTML({
+                    success: false,
+                    message: 'Discord authorization failed'
+                }));
+                return;
             }
 
-            // Decode the state to get user info
+            if (!code || !state) {
+                res.send(this.discordService.generateCallbackHTML({
+                    success: false,
+                    message: 'Invalid request: Missing code or state'
+                }));
+                return;
+            }
+
             const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString());
             const userId = stateData.userId;
-
-            console.log('State Data:', {
-                userId,
-                timestamp: new Date(stateData.timestamp).toISOString()
-            });
 
             const tokenData = await this.discordService.getAccessToken(code as string);
             const userInfo = await this.discordService.getUserInfo(tokenData.access_token);
 
-            // Store the Discord connection
             await this.userCrud.connectDiscord(userId, {
                 id: userInfo.id,
                 username: userInfo.username,
@@ -598,21 +573,19 @@ export class UserController {
                 refreshToken: tokenData.refresh_token
             });
 
-            return res.json({
+            res.send(this.discordService.generateCallbackHTML({
                 success: true,
-                message: 'Discord connected successfully',
+                message: 'Discord successfully connected!',
                 data: {
-                    id: userInfo.id,
-                    username: userInfo.username,
-                    email: userInfo.email
+                    username: userInfo.username
                 }
-            });
+            }));
         } catch (error) {
             console.error('Discord Callback Error:', error);
-            return res.status(500).json({
+            res.send(this.discordService.generateCallbackHTML({
                 success: false,
                 message: 'Failed to complete Discord connection'
-            });
+            }));
         }
     }
 

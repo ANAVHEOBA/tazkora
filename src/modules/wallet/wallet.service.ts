@@ -110,4 +110,117 @@ export class PaystackService {
   async verifyTransfer(reference: string) {
     return this.request<TransferVerificationResponse>('GET', `/transfer/verify/${reference}`);
   }
+
+  generatePaymentCallbackHTML(data: { 
+    success: boolean; 
+    message: string; 
+    amount?: number;
+    reference?: string;
+  }): string {
+    return `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Tazkora - Payment Status</title>
+            <meta name="theme-color" content="${env.HTML_TEMPLATE.THEME_COLOR}">
+            <style>
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                    background: ${env.HTML_TEMPLATE.PRIMARY_COLOR};
+                    color: ${env.HTML_TEMPLATE.TEXT_COLOR};
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 100vh;
+                    margin: 0;
+                    padding: 20px;
+                    box-sizing: border-box;
+                }
+                .container {
+                    background: rgba(255, 255, 255, 0.05);
+                    padding: 2rem;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+                    text-align: center;
+                    max-width: 400px;
+                    width: 100%;
+                    backdrop-filter: blur(10px);
+                }
+                .status-icon {
+                    font-size: 48px;
+                    margin: 1rem 0;
+                }
+                .title {
+                    font-size: 1.5rem;
+                    color: ${env.HTML_TEMPLATE.TEXT_COLOR};
+                    margin: 1rem 0;
+                    font-weight: 600;
+                }
+                .amount {
+                    font-size: 2rem;
+                    color: ${env.HTML_TEMPLATE.SECONDARY_COLOR};
+                    margin: 1rem 0;
+                    font-weight: bold;
+                }
+                .message {
+                    color: rgba(255, 255, 255, 0.8);
+                    margin: 1rem 0;
+                    line-height: 1.5;
+                }
+                .reference {
+                    background: rgba(255, 255, 255, 0.1);
+                    padding: 0.5rem 1rem;
+                    border-radius: 4px;
+                    font-family: monospace;
+                    font-size: 0.9rem;
+                }
+                .loading {
+                    display: inline-block;
+                    width: 20px;
+                    height: 20px;
+                    border: 3px solid rgba(255, 255, 255, 0.1);
+                    border-top: 3px solid ${env.HTML_TEMPLATE.SECONDARY_COLOR};
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                }
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+                .status-container {
+                    background: ${data.success ? env.HTML_TEMPLATE.PAYMENT.SUCCESS_COLOR : env.HTML_TEMPLATE.PAYMENT.ERROR_COLOR};
+                    padding: 1rem;
+                    border-radius: 8px;
+                    margin: 1rem 0;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="status-container">
+                    <div class="status-icon">${data.success ? '✅' : '❌'}</div>
+                    <h1 class="title">${data.success ? 'Payment Successful' : 'Payment Failed'}</h1>
+                    ${data.amount ? `<div class="amount">${env.HTML_TEMPLATE.PAYMENT.CURRENCY} ${data.amount.toLocaleString()}</div>` : ''}
+                    <p class="message">${data.message}</p>
+                    ${data.reference ? `<div class="reference">Reference: ${data.reference}</div>` : ''}
+                </div>
+                <div class="loading"></div>
+                <p class="message">Redirecting back to wallet...</p>
+            </div>
+            <script>
+                const data = ${JSON.stringify(data)};
+                window.opener.postMessage({
+                    type: '${data.success ? 'PAYMENT_SUCCESS' : 'PAYMENT_ERROR'}',
+                    data: data
+                }, '${env.FRONTEND_URL}');
+                setTimeout(() => {
+                    window.close();
+                }, 3000);
+            </script>
+        </body>
+        </html>
+    `;
+  }
 }

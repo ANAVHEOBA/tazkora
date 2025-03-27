@@ -41,4 +41,17 @@ export const env = {
     TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || '',
     PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY || '',
     PAYSTACK_PUBLIC_KEY: process.env.PAYSTACK_PUBLIC_KEY || '',
+    FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:3000',
+    HTML_TEMPLATE: {
+        TITLE: 'Tazkora',
+        THEME_COLOR: '#0A1929', 
+        PRIMARY_COLOR: '#0A1929',
+        SECONDARY_COLOR: '#1E88E5',
+        TEXT_COLOR: '#FFFFFF',
+        PAYMENT: {
+            SUCCESS_COLOR: 'rgba(46, 125, 50, 0.1)',
+            ERROR_COLOR: 'rgba(211, 47, 47, 0.1)',
+            CURRENCY: 'NGN'
+        }
+    },
 } as const;

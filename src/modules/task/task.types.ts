@@ -1,6 +1,10 @@
 export interface TaskPool {
   title: string;
   description: string;
+  bio: string;
+  taskCategory: 'SOCIAL_MEDIA' | 'OTHER';
+  deadline: Date;
+  verificationMethod: string;
   totalSpots: number;
   rewardPerUser: number;
   totalRewardBudget: number;
@@ -13,7 +17,7 @@ export interface TaskPool {
   submissions: TaskSubmission[];
   createdAt: Date;
   updatedAt: Date;
-  image: string;
+  image?: string;
   taskLink: string;
   taskType: 'TWITTER' | 'DISCORD' | 'TELEGRAM' | 'OTHER';
 }
@@ -29,9 +33,13 @@ export interface TaskSubmission {
 export interface CreateTaskPoolInput {
   title: string;
   description: string;
+  bio: string;
+  taskCategory: 'SOCIAL_MEDIA' | 'OTHER';
+  deadline: Date;
+  verificationMethod: string;
   totalSpots: number;
   rewardPerUser: number;
-  image: string;
+  image?: string;
   taskLink: string;
   taskType: 'TWITTER' | 'DISCORD' | 'TELEGRAM' | 'OTHER';
 } 

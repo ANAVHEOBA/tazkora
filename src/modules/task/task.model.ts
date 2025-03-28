@@ -16,6 +16,14 @@ const taskSubmissionSchema = new Schema({
 const taskPoolSchema = new Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
+  bio: { type: String, required: true },
+  taskCategory: { 
+    type: String, 
+    enum: ['SOCIAL_MEDIA', 'OTHER'], 
+    required: true 
+  },
+  deadline: { type: Date, required: true },
+  verificationMethod: { type: String, required: true },
   totalSpots: { type: Number, required: true },
   rewardPerUser: { type: Number, required: true },
   totalRewardBudget: { type: Number, required: true },
@@ -30,7 +38,7 @@ const taskPoolSchema = new Schema({
   },
   completedCount: { type: Number, default: 0 },
   submissions: [taskSubmissionSchema],
-  image: { type: String, required: true },
+  image: { type: String, required: false },
   taskLink: { type: String, required: true },
   taskType: { 
     type: String, 
@@ -43,5 +51,10 @@ const taskPoolSchema = new Schema({
 taskPoolSchema.index({ status: 1, completedCount: 1 });
 taskPoolSchema.index({ 'submissions.userId': 1 });
 taskPoolSchema.index({ taskType: 1 });
+
+// Add indexes for new fields
+taskPoolSchema.index({ taskCategory: 1 });
+taskPoolSchema.index({ deadline: 1 });
+taskPoolSchema.index({ status: 1, deadline: 1 });
 
 export const TaskPool = mongoose.model<ITaskPool & Document>('TaskPool', taskPoolSchema); 

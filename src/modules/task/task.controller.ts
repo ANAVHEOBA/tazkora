@@ -27,7 +27,11 @@ export class TaskController {
     try {
       const { 
         title, 
-        description, 
+        description,
+        bio,
+        taskCategory,
+        deadline,
+        verificationMethod,
         totalSpots, 
         rewardPerUser,
         taskLink,
@@ -35,7 +39,24 @@ export class TaskController {
         imageBase64
       } = req.body;
 
-      // Get the image path either from file upload or base64
+      // Validate required fields
+      if (!bio || !taskCategory || !deadline || !verificationMethod) {
+        return res.status(400).json({
+          success: false,
+          message: 'Bio, task category, deadline, and verification method are required'
+        });
+      }
+
+      // Validate deadline is in the future
+      const deadlineDate = new Date(deadline);
+      if (deadlineDate <= new Date()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Deadline must be in the future'
+        });
+      }
+
+      // Handle optional image
       let image: string | undefined;
       
       if (req.file) {
@@ -46,18 +67,9 @@ export class TaskController {
         try {
           image = saveBase64Image(imageBase64);
         } catch (error) {
-          return res.status(400).json({
-            success: false,
-            message: 'Invalid image data'
-          });
+          console.warn('Failed to save image:', error);
+          // Continue without image instead of returning error
         }
-      }
-
-      if (!image) {
-        return res.status(400).json({
-          success: false,
-          message: 'Task image is required (either as file upload or base64)'
-        });
       }
 
       if (!taskLink || !taskType) {
@@ -83,9 +95,13 @@ export class TaskController {
       const taskPool = await this.taskPoolCrud.createTaskPool({
         title,
         description,
+        bio,
+        taskCategory,
+        deadline: deadlineDate,
+        verificationMethod,
         totalSpots,
         rewardPerUser,
-        image,
+        image,  // Now optional
         taskLink,
         taskType,
         createdBy: {

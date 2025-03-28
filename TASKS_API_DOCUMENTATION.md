@@ -110,3 +110,68 @@ Error cases:
 - Unauthorized access
 
 All responses include a success boolean and either a data object or error message. Pagination info is included when listing tasks. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+to create ta 
+
+Endpoint: POST https://tazkora-3.onrender.com/api/tasks/pools/create
+
+
+
+{
+  "title": "Twitter Follow Task",
+  "description": "Follow our Twitter account",
+  "bio": "We are a Web3 project focused on community engagement",  // New required field
+  "taskCategory": "SOCIAL_MEDIA",  // New required field - enum: ['SOCIAL_MEDIA', 'OTHER']
+  "deadline": "2024-04-30T23:59:59.999Z",  // New required field - must be future date
+  "verificationMethod": "Automatic Twitter verification",  // New required field
+  "totalSpots": 100,
+  "rewardPerUser": 50,
+  "taskLink": "https://twitter.com/TazkoraHQ",
+  "taskType": "TWITTER",  // enum: ['TWITTER', 'DISCORD', 'TELEGRAM', 'OTHER']
+  "image": <file>  // Optional file upload
+}
+
+
+{
+  "success": true,
+  "data": {
+    "title": "Twitter Follow Task",
+    "description": "Follow our Twitter account",
+    "bio": "We are a Web3 project focused on community engagement",
+    "taskCategory": "SOCIAL_MEDIA",
+    "deadline": "2024-04-30T23:59:59.999Z",
+    "verificationMethod": "Automatic Twitter verification",
+    "totalSpots": 100,
+    "rewardPerUser": 50,
+    "totalRewardBudget": 5000,  // Calculated automatically (totalSpots * rewardPerUser)
+    "status": "OPEN",
+    "createdBy": {
+      "userId": "user_id_here",
+      "role": "user"
+    },
+    "completedCount": 0,
+    "submissions": [],
+    "image": "uploads/tasks/image-123456.jpg",  // Optional
+    "taskLink": "https://twitter.com/TazkoraHQ",
+    "taskType": "TWITTER",
+    "createdAt": "2024-03-15T12:00:00.000Z",
+    "updatedAt": "2024-03-15T12:00:00.000Z",
+    "_id": "task_id_here"
+  }
+}

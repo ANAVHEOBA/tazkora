@@ -3,24 +3,59 @@ a@a:~/tazkora$ curl -X POST https://tazkora-3.onrender.com/api/users/request-acc
 -d '{
     "email": "jessicaanavheoba@gmail.com"
 }'
+
+
+
+
+curl -X POST https://tazkora-3.onrender.com/api/users/request-access \
+-H "Content-Type: application/json" \
+-d '{
+    "email": "webdevloper186@gmail.com"
+}'
+
+curl -X POST https://ta@a:~/tazkora$ curl -X POST https://tazkora-3.onrender.com/api/users/verify \
+-H "Content-Type: application/json" \
+-d '{
+    "email": "webdevloper186@gmail.com",
+    "code": "134951"
+}'
+
+
+
+
+
 {"message":"Verification code sent successfully","email":"jessicaanavheoba@gmail.com"}a@a:~/tazkora$ curl -X POST https://ta@a:~/tazkora$ curl -X POST https://tazkora-3.onrender.com/api/users/verify \
 -H "Content-Type: application/json" \
 -d '{
     "email": "jessicaanavheoba@gmail.com",
-    "code": "569572"
+    "code": "555738"
 }'
 {"message":"Login successful","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q3ZTYwN2UxOTBhYzFjYTdkYzU3MGQiLCJlbWFpbCI6Implc3NpY2FhbmF2aGVvYmFAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NDIyMDI0MjEsImV4cCI6MTc0MjI4ODgyMX0.2qXHiPh1nvbGcd_vleSgRKWaZMhWMgYA7HfdtNrBwwY","user":{"id":"67d7e607e190ac1ca7dc570d","email":"jessicaanavheoba@gmail.com"}}
 
 
+
+
+
+
 a@a:~/tazkora$ curl -X GET https://tazkora-3.onrender.com/api/wallet/balance \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q3ZTYwN2UxOTBhYzFjYTdkYzU3MGQiLCJlbWFpbCI6Implc3NpY2FhbmF2aGVvYmFAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NDIyMDI0MjEsImV4cCI6MTc0MjI4ODgyMX0.2qXHiPh1nvbGcd_vleSgRKWaZMhWMgYA7HfdtNrBwwY"
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q3ZTYwN2UxOTBhYzFjYTdkYzU3MGQiLCJlbWFpbCI6Implc3NpY2FhbmF2aGVvYmFAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NDQ4MDY1MzcsImV4cCI6MTc0NDg5MjkzN30.K3fhiavn2LBAQIe-g6AZvaZLPmafb1NaesILzjOwS0o"
 {"success":true,"data":{"balance":0,"currency":"NGN"}}
 
 
 
 
+
+
+
+
+curl -X GET https://tazkora-3.onrender.com/api/wallet/balance \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q5NTU2MGUxOTBhYzFjYTdkYzU4MTciLCJlbWFpbCI6IndlYmRldmxvcGVyMTg2QGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ0ODA5MTEyLCJleHAiOjE3NDQ4OTU1MTJ9.GGkRF7kRxTgaRRYzbDKS3c5JpAZdG0Dm1qmQuk_3hFo"
+
+
+
+
 a@a:~/tazkora$ curl -X POST https://tazkora-3.onrender.com/api/wallet/deposit \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q3ZTYwN2UxOTBhYzFjYTdkYzU3MGQiLCJlbWFpbCI6Implc3NpY2FhbmF2aGVvYmFAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NDIyMDI0MjEsImV4cCI6MTc0MjI4ODgyMX0.2qXHiPh1nvbGcd_vleSgRKWaZMhWMgYA7HfdtNrBwwY" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q5NTU2MGUxOTBhYzFjYTdkYzU4MTciLCJlbWFpbCI6IndlYmRldmxvcGVyMTg2QGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ0ODA5MTEyLCJleHAiOjE3NDQ4OTU1MTJ9.GGkRF7kRxTgaRRYzbDKS3c5JpAZdG0Dm1qmQuk_3hFo" \
 -H "Content-Type: application/json" \
 -d '{
     "amount": 1000

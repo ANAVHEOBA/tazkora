@@ -5,6 +5,7 @@ import adminRouter from './modules/admin/admin.router';
 import partnerRouter from './modules/partner/partner.router';
 import walletRouter from './modules/wallet/wallet.router';
 import taskRouter from './modules/task/task.router';
+import rewardRouter from './modules/reward/reward.router';
 
 
 const app = express();
@@ -49,6 +50,7 @@ app.use('/api/admin', adminRouter);  // This will now handle admin/partners rout
 app.use('/api/partners', partnerRouter); // This will handle both public and admin routes
 app.use('/api/wallet', walletRouter);
 app.use('/api/tasks', taskRouter);
+app.use('/api/rewards', rewardRouter);  // Add reward routes
 app.use('/uploads', express.static('uploads'));
 
 // Notifications

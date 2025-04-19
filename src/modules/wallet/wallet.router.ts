@@ -32,6 +32,25 @@ router.post(
   walletController.initiateWithdrawal.bind(walletController)
 );
 
+// New payout/withdrawal routes
+router.get(
+  '/payouts/recent',
+  userMiddleware,
+  walletController.getRecentPayouts.bind(walletController)
+);
+
+router.get(
+  '/withdrawals',
+  userMiddleware,
+  walletController.getWithdrawalHistory.bind(walletController)
+);
+
+router.get(
+  '/withdrawals/stats',
+  userMiddleware,
+  walletController.getWithdrawalStats.bind(walletController)
+);
+
 router.get(
   '/banks',
   userMiddleware,

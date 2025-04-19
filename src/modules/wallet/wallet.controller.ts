@@ -287,4 +287,72 @@ export class WalletController {
       });
     }
   }
+
+  // Get recent payouts
+  async getRecentPayouts(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+    try {
+      const userId = req.user?.id;
+      const limit = parseInt(req.query.limit as string) || 4;
+
+      const recentPayouts = await this.walletCrud.getRecentPayouts(userId, limit);
+
+      return res.json({
+        success: true,
+        data: recentPayouts
+      });
+    } catch (error) {
+      console.error('Get Recent Payouts Error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to get recent payouts'
+      });
+    }
+  }
+
+  // Get withdrawal history
+  async getWithdrawalHistory(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+    try {
+      const userId = req.user?.id;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const status = req.query.status as TransactionStatus;
+
+      const history = await this.walletCrud.getWithdrawalHistory(
+        userId,
+        page,
+        limit,
+        status
+      );
+
+      return res.json({
+        success: true,
+        data: history
+      });
+    } catch (error) {
+      console.error('Get Withdrawal History Error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to get withdrawal history'
+      });
+    }
+  }
+
+  // Get withdrawal statistics
+  async getWithdrawalStats(req: AuthenticatedUserRequest, res: Response): Promise<Response> {
+    try {
+      const userId = req.user?.id;
+      const stats = await this.walletCrud.getWithdrawalStats(userId);
+
+      return res.json({
+        success: true,
+        data: stats
+      });
+    } catch (error) {
+      console.error('Get Withdrawal Stats Error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to get withdrawal statistics'
+      });
+    }
+  }
 }

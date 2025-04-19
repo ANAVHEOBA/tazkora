@@ -70,7 +70,13 @@ a@a:~/tazkora$ curl -X GET https://tazkora-3.onrender.com/api/wallet/transaction
 {"success":true,"data":{"transactions":[{"_id":"67d7e6c7f627e3f33af6e836","userId":"67d7e607e190ac1ca7dc570d","type":"deposit","amount":1000,"currency":"NGN","status":"pending","reference":"z00ee8zpal","createdAt":"2025-03-17T09:09:27.728Z","updatedAt":"2025-03-17T09:09:27.728Z","__v":0}],"total":1,"pages":1}}a@a:~/tazkora$ 
 
 
-
+a@a:~/tazkora$ curl -X POST https://tazkora-3.onrender.com/api/wallet/deposit \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q5NTU2MGUxOTBhYzFjYTdkYzU4MTciLCJlbWFpbCI6IndlYmRldmxvcGVyMTg2QGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ0ODA5MTEyLCJleHAiOjE3NDQ4OTU1MTJ9.GGkRF7kRxTgaRRYzbDKS3c5JpAZdG0Dm1qmQuk_3hFo" \
+-H "Content-Type: application/json" \
+-d '{
+    "amount": 1000
+}'
+{"success":true,"data":{"authorization_url":"https://checkout.paystack.com/rj67ol182gjzkuq","reference":
 
 
 

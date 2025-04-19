@@ -3,6 +3,7 @@ import { TaskPoolCrud } from './task.crud';
 import { AuthenticatedUserRequest } from '../../middleware/user.middleware';
 import { AuthenticatedAdminRequest } from '../../middleware/admin.middleware';
 import { saveBase64Image } from '../../utils/upload.utils';
+import { RewardCrud } from '../reward/reward.crud';
 
 // Extend the request types to include the file property
 interface AuthenticatedUserRequestWithFile extends AuthenticatedUserRequest {
@@ -17,9 +18,11 @@ type AuthenticatedRequestWithFile = AuthenticatedUserRequestWithFile | Authentic
 
 export class TaskController {
   private taskPoolCrud: TaskPoolCrud;
+  private rewardCrud: RewardCrud;
 
   constructor() {
     this.taskPoolCrud = new TaskPoolCrud();
+    this.rewardCrud = new RewardCrud();
   }
 
   // Create task pool (both admin and users)
@@ -173,11 +176,41 @@ export class TaskController {
     try {
       const { taskId, userId } = req.params;
 
+      // Get task details first
+      const task = await this.taskPoolCrud.getTaskPoolById(taskId);
+      if (!task) {
+        return res.status(404).json({
+          success: false,
+          message: 'Task not found'
+        });
+      }
+
+      // Approve the submission
       const result = await this.taskPoolCrud.approveSubmission(taskId, userId);
+
+      // Create and credit reward
+      const reward = await this.rewardCrud.createReward({
+        userId,
+        taskId,
+        amount: task.rewardPerUser,
+        taskTitle: task.title,
+        taskType: task.taskType
+      });
+
+      // Ensure reward is not null before proceeding
+      if (!reward || !reward._id) {
+        throw new Error('Failed to create reward');
+      }
+
+      // Credit the reward immediately
+      const creditedReward = await this.rewardCrud.creditReward(reward._id.toString());
 
       return res.json({
         success: true,
-        data: result
+        data: {
+          task: result,
+          reward: creditedReward
+        }
       });
     } catch (error) {
       console.error('Approve Submission Error:', error);

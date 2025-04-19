@@ -144,4 +144,91 @@ export class WalletCrud {
       { new: true }
     );
   }
+
+  // Get recent payouts (withdrawals)
+  async getRecentPayouts(
+    userId: string,
+    limit: number = 4
+  ): Promise<ITransaction[]> {
+    return Transaction.find({
+      userId: new mongoose.Types.ObjectId(userId),
+      type: TransactionType.WITHDRAWAL,
+      status: TransactionStatus.COMPLETED
+    })
+      .sort({ createdAt: -1 })
+      .limit(limit);
+  }
+
+  // Get withdrawal history with pagination
+  async getWithdrawalHistory(
+    userId: string,
+    page: number = 1,
+    limit: number = 10,
+    status?: TransactionStatus
+  ): Promise<{
+    withdrawals: ITransaction[];
+    total: number;
+    pages: number;
+  }> {
+    const query = {
+      userId: new mongoose.Types.ObjectId(userId),
+      type: TransactionType.WITHDRAWAL,
+      ...(status && { status })
+    };
+
+    const [withdrawals, total] = await Promise.all([
+      Transaction.find(query)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit),
+      Transaction.countDocuments(query)
+    ]);
+
+    return {
+      withdrawals,
+      total,
+      pages: Math.ceil(total / limit)
+    };
+  }
+
+  // Get withdrawal statistics
+  async getWithdrawalStats(userId: string): Promise<{
+    totalWithdrawn: number;
+    pendingWithdrawals: number;
+    lastWithdrawal?: ITransaction;
+  }> {
+    const [completedWithdrawals, pendingWithdrawals, lastWithdrawal] = await Promise.all([
+      Transaction.aggregate([
+        {
+          $match: {
+            userId: new mongoose.Types.ObjectId(userId),
+            type: TransactionType.WITHDRAWAL,
+            status: TransactionStatus.COMPLETED
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: '$amount' }
+          }
+        }
+      ]),
+      Transaction.countDocuments({
+        userId: new mongoose.Types.ObjectId(userId),
+        type: TransactionType.WITHDRAWAL,
+        status: TransactionStatus.PENDING
+      }),
+      Transaction.findOne({
+        userId: new mongoose.Types.ObjectId(userId),
+        type: TransactionType.WITHDRAWAL,
+        status: TransactionStatus.COMPLETED
+      }).sort({ createdAt: -1 })
+    ]);
+
+    return {
+      totalWithdrawn: completedWithdrawals[0]?.total || 0,
+      pendingWithdrawals,
+      lastWithdrawal: lastWithdrawal || undefined
+    };
+  }
 }
